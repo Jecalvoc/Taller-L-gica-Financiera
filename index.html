@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ContaKids · Lógica Financiera y Ciudadanía Económica</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/baloo-2/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/nunito/index.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ink:'#12263A', teal:'#0FA3A3', tealD:'#0B7C7C', coral:'#FF6B5B',
+        mustard:'#FFC145', cream:'#FFF8EC', mint:'#E4F7F1', plum:'#7A5AF8', leaf:'#3DBE73'
+      },
+      fontFamily: { display:['"Baloo 2 Variable"','"Baloo 2"','cursive'], body:['"Nunito Variable"','Nunito','sans-serif'] }
+    }
+  }
+}
+</script>
+<style>
+  html{scroll-behavior:smooth}
+  body{background:
+    radial-gradient(circle at 12% 8%, #FFE9C7 0 18%, transparent 40%),
+    radial-gradient(circle at 88% 22%, #D8F5EE 0 20%, transparent 45%),
+    #FFF8EC;}
+  .card{background:#fff;border:3px solid #12263A;border-radius:1.25rem;box-shadow:6px 6px 0 #12263A}
+  .card-soft{background:#fff;border:3px solid #12263A;border-radius:1.25rem;box-shadow:4px 4px 0 rgba(18,38,58,.18)}
+  .btn{border:3px solid #12263A;border-radius:999px;font-family:'Baloo 2 Variable',cursive;font-weight:700;
+       box-shadow:3px 3px 0 #12263A;transition:transform .12s ease, box-shadow .12s ease, filter .2s}
+  .btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #12263A}
+  .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #12263A}
+  .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:2px 2px 0 #12263A}
+  .chip{border:2.5px solid #12263A;border-radius:.9rem;background:#fff;cursor:grab;transition:all .15s;
+        box-shadow:2px 2px 0 rgba(18,38,58,.35)}
+  .chip:hover{transform:translateY(-2px) rotate(-.6deg)}
+  .chip.sel{outline:4px dashed #7A5AF8;outline-offset:2px;background:#F3EFFF}
+  .chip.ok{border-color:#3DBE73;background:#EAFBF1}
+  .chip.bad{border-color:#FF6B5B;background:#FFEDEA}
+  .bin{border:3px dashed #12263A;border-radius:1.1rem;min-height:130px;transition:all .15s}
+  .bin.over{background:#FFF6D8;transform:scale(1.02)}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+  .shake{animation:shake .45s}
+  @keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+  .pop{animation:pop .35s ease-out}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  .floaty{animation:floaty 4s ease-in-out infinite}
+  @keyframes tilt{0%,100%{transform:rotate(-2.2deg)}50%{transform:rotate(2.2deg)}}
+  .anim-balance{animation:tilt 6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  @keyframes slideToast{from{transform:translateY(30px) scale(.9);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+  .toast-in{animation:slideToast .3s ease-out}
+  .flip{perspective:1000px}
+  .flip-inner{transition:transform .55s;transform-style:preserve-3d;position:relative}
+  .flip.open .flip-inner{transform:rotateY(180deg)}
+  .flip-face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .flip-back{transform:rotateY(180deg);position:absolute;inset:0}
+  .tacc{border:3px solid #12263A;background:#fff;border-radius:.8rem;overflow:hidden}
+  .navlink{position:relative}
+  .navlink.active{color:#0B7C7C}
+  .navlink.active::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:5px;border-radius:9px;background:#FFC145}
+  .range{-webkit-appearance:none;appearance:none;height:14px;border-radius:99px;background:#E4F7F1;border:2.5px solid #12263A}
+  .range::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#FFC145;border:3px solid #12263A;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+  .range::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:#FFC145;border:3px solid #12263A;cursor:pointer}
+  .mapa-node{position:absolute;min-width:120px;max-width:190px;border:3px solid #12263A;border-radius:1rem;padding:.5rem .6rem;
+             background:#fff;box-shadow:3px 3px 0 #12263A;cursor:grab;touch-action:none;user-select:none}
+  .mapa-node:active{cursor:grabbing}
+  details>summary{list-style:none;cursor:pointer}
+  details>summary::-webkit-details-marker{display:none}
+  .tbl th{font-family:'Baloo 2 Variable',cursive}
+  .tbl td,.tbl th{border:2px solid #12263A;padding:.45rem .6rem}
+  @media print{
+    body *{visibility:hidden!important}
+    #certCard,#certCard *{visibility:visible!important}
+    #certCard{position:absolute!important;left:0;top:0;width:100%;box-shadow:none!important}
+  }
+  .scroll-x{scrollbar-width:thin}
+  .scroll-x::-webkit-scrollbar{height:8px}
+  .scroll-x::-webkit-scrollbar-thumb{background:#0FA3A3;border-radius:9px}
+</style>
+</head>
+<body class="font-body text-ink">
+
+<!-- ======================= NAV ======================= -->
+<header class="sticky top-0 z-50 bg-cream/95 backdrop-blur border-b-4 border-ink">
+  <div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-3">
+    <div class="w-12 h-12 shrink-0" data-buhito></div>
+    <div class="leading-none">
+      <p class="font-display text-xl md:text-2xl font-extrabold">Conta<span class="text-teal">Kids</span></p>
+      <p class="text-[11px] md:text-xs text-ink/70 -mt-0.5">Lógica financiera · Partida doble · Impacto social</p>
+    </div>
+    <nav class="hidden lg:flex items-center gap-5 ml-6 font-display font-bold text-sm">
+      <a href="#inicio" class="navlink" data-nav="inicio">Inicio</a>
+      <a href="#m1" class="navlink" data-nav="m1">1 · Arquitectura</a>
+      <a href="#m2" class="navlink" data-nav="m2">2 · Equilibrio</a>
+      <a href="#m3" class="navlink" data-nav="m3">3 · Ecosistema</a>
+      <a href="#reto" class="navlink" data-nav="reto">Reto final</a>
+      <a href="#diploma" class="navlink" data-nav="diploma">Diploma</a>
+    </nav>
+    <div class="ml-auto flex items-center gap-2">
+      <div class="text-right hidden sm:block">
+        <p class="font-display font-extrabold text-sm leading-none"><span id="xpNum">0</span> XP</p>
+        <p class="text-[11px] text-ink/70 leading-tight" id="nivelTxt">Aprendiz de cuentas</p>
+      </div>
+      <div class="w-24 h-3 bg-mint border-2 border-ink rounded-full overflow-hidden">
+        <div id="progBar" class="h-full bg-coral transition-all duration-500" style="width:0%"></div>
+      </div>
+      <button id="btnMenu" class="lg:hidden btn bg-mustard px-3 py-1 text-sm">☰</button>
+    </div>
+  </div>
+  <div id="menuMovil" class="hidden lg:hidden px-4 pb-3 grid grid-cols-2 gap-2 font-display font-bold text-sm">
+    <a href="#inicio" class="btn bg-white px-3 py-1.5 text-center">Inicio</a>
+    <a href="#m1" class="btn bg-white px-3 py-1.5 text-center">Módulo 1</a>
+    <a href="#m2" class="btn bg-white px-3 py-1.5 text-center">Módulo 2</a>
+    <a href="#m3" class="btn bg-white px-3 py-1.5 text-center">Módulo 3</a>
+    <a href="#reto" class="btn bg-white px-3 py-1.5 text-center">Reto final</a>
+    <a href="#diploma" class="btn bg-white px-3 py-1.5 text-center">Diploma</a>
+  </div>
+  <div class="h-1.5 bg-mint"><div id="progBar2" class="h-full bg-teal transition-all duration-500" style="width:0%"></div></div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4">
+
+<!-- ======================= INICIO ======================= -->
+<section id="inicio" class="pt-8 pb-12">
+  <div class="grid lg:grid-cols-2 gap-8 items-center">
+    <div>
+      <span class="inline-block btn bg-mustard px-4 py-1 text-xs md:text-sm"></span>
+      <h1 class="font-display text-4xl md:text-6xl font-extrabold leading-[1.05] mt-4">
+        De la <span class="text-teal">partida doble</span><br>al <span class="text-coral">impacto social</span>
+      </h1>
+      <p class="mt-4 text-lg md:text-xl text-ink/85 max-w-xl">
+        ¿Sabías que la contabilidad es como una <b>balanza que nunca puede mentir</b>? Cada moneda que entra
+        deja una huella en dos lugares al mismo tiempo. Aquí vas a aprender a registrar la realidad económica
+        con rigor… y a descubrir cómo esos números cambian la vida de las personas.
+      </p>
+      <div class="flex flex-wrap gap-3 mt-6">
+        <a href="#m1" class="btn bg-teal text-white px-6 py-3 text-lg">🚀 Empezar el taller</a>
+        <a href="#objetivos" class="btn bg-white px-6 py-3 text-lg">🎯 Ver mis metas</a>
+        <button id="btnLogros" class="btn bg-mustard px-6 py-3 text-lg">🏅 Mis logros</button>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-2 text-xs font-bold">
+        <span class="px-3 py-1 rounded-full bg-mint border-2 border-ink">⏱️ 4 sesiones de 45 min</span>
+        <span class="px-3 py-1 rounded-full bg-white border-2 border-ink">🇨🇴 Marco normativo colombiano</span>
+        <span class="px-3 py-1 rounded-full bg-white border-2 border-ink">👥 Trabajo en parejas y grupos</span>
+      </div>
+    </div>
+
+    <!-- ILUSTRACIÓN HERO: BALANZA PATRIMONIAL -->
+    <div class="card p-3 bg-mint floaty">
+      <svg viewBox="0 0 960 560" class="w-full h-auto" role="img" aria-label="Balanza donde el activo equilibra al pasivo y al patrimonio">
+        <rect x="0" y="0" width="960" height="560" rx="24" fill="#E4F7F1"/>
+        <circle cx="110" cy="90" r="52" fill="#FFC145" opacity=".35"/>
+        <circle cx="880" cy="470" r="80" fill="#FF6B5B" opacity=".16"/>
+        <!-- tablero -->
+        <g>
+          <rect x="512" y="34" width="416" height="214" rx="18" fill="#A9713F" stroke="#12263A" stroke-width="6"/>
+          <rect x="530" y="52" width="380" height="178" rx="12" fill="#1E5B50"/>
+          <text x="720" y="106" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="34" fill="#FFF8EC">ACTIVO =</text>
+          <text x="720" y="150" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="30" fill="#FFF8EC">PASIVO + PATRIMONIO</text>
+          <path d="M560 186 q40 -18 80 0 t80 0 t80 0" stroke="#FFC145" stroke-width="5" fill="none" stroke-linecap="round" opacity=".9"/>
+          <circle cx="900" cy="66" r="7" fill="#FFF8EC" opacity=".8"/>
+        </g>
+        <!-- piso -->
+        <ellipse cx="290" cy="516" rx="272" ry="26" fill="#0FA3A3" opacity=".18"/>
+        <!-- balanza -->
+        <g>
+          <path d="M246 516 h92 l-16 -34 h-60 Z" fill="#FFC145" stroke="#12263A" stroke-width="6"/>
+          <rect x="284" y="250" width="16" height="236" rx="8" fill="#12263A"/>
+          <circle cx="292" cy="252" r="14" fill="#FF6B5B" stroke="#12263A" stroke-width="5"/>
+          <g class="anim-balance" style="transform-origin:292px 252px">
+            <rect x="112" y="244" width="360" height="16" rx="8" fill="#0FA3A3" stroke="#12263A" stroke-width="5"/>
+            <!-- platillo izquierdo: ACTIVO -->
+            <line x1="150" y1="258" x2="118" y2="336" stroke="#12263A" stroke-width="4"/>
+            <line x1="150" y1="258" x2="182" y2="336" stroke="#12263A" stroke-width="4"/>
+            <path d="M100 336 h100 a50 50 0 0 1 -100 0 Z" fill="#FFC145" stroke="#12263A" stroke-width="5"/>
+            <rect x="118" y="298" width="40" height="28" rx="4" fill="#7A5AF8" stroke="#12263A" stroke-width="4"/>
+            <rect x="124" y="304" width="28" height="16" rx="2" fill="#D8D2FF"/>
+            <circle cx="176" cy="318" r="12" fill="#FFD84D" stroke="#12263A" stroke-width="4"/>
+            <circle cx="176" cy="318" r="4" fill="#12263A"/>
+            <text x="150" y="418" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="26" fill="#0B7C7C">ACTIVO</text>
+            <text x="150" y="442" text-anchor="middle" font-size="15" fill="#12263A" opacity=".75">lo que TENGO</text>
+            <!-- platillo derecho: PASIVO + PATRIMONIO -->
+            <line x1="434" y1="258" x2="402" y2="336" stroke="#12263A" stroke-width="4"/>
+            <line x1="434" y1="258" x2="466" y2="336" stroke="#12263A" stroke-width="4"/>
+            <path d="M384 336 h100 a50 50 0 0 1 -100 0 Z" fill="#FF6B5B" stroke="#12263A" stroke-width="5"/>
+            <rect x="396" y="300" width="34" height="26" rx="4" fill="#fff" stroke="#12263A" stroke-width="4"/>
+            <line x1="402" y1="308" x2="424" y2="308" stroke="#12263A" stroke-width="3"/>
+            <line x1="402" y1="316" x2="418" y2="316" stroke="#12263A" stroke-width="3"/>
+            <ellipse cx="456" cy="314" rx="20" ry="15" fill="#FF9EC7" stroke="#12263A" stroke-width="4"/>
+            <circle cx="470" cy="308" r="4" fill="#12263A"/>
+            <text x="434" y="418" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="24" fill="#FF6B5B">PASIVO + PATRIMONIO</text>
+            <text x="434" y="442" text-anchor="middle" font-size="15" fill="#12263A" opacity=".75">de dónde SALIÓ</text>
+          </g>
+        </g>
+        <!-- personaje 1 -->
+        <g transform="translate(560,300)">
+          <ellipse cx="52" cy="212" rx="54" ry="12" fill="#12263A" opacity=".13"/>
+          <rect x="30" y="150" width="18" height="62" rx="9" fill="#12263A"/>
+          <rect x="58" y="150" width="18" height="62" rx="9" fill="#12263A"/>
+          <path d="M14 78 q38 -22 76 0 v60 q-38 20 -76 0 Z" fill="#0FA3A3" stroke="#12263A" stroke-width="6"/>
+          <path d="M16 92 q-24 22 -14 52" stroke="#12263A" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M88 92 q26 20 16 52" stroke="#12263A" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <circle cx="52" cy="44" r="34" fill="#F3C69B" stroke="#12263A" stroke-width="6"/>
+          <path d="M18 40 q6 -34 34 -34 t34 34 q-12 -16 -34 -14 t-34 14 Z" fill="#3B2A20" stroke="#12263A" stroke-width="5"/>
+          <circle cx="40" cy="46" r="4.5" fill="#12263A"/><circle cx="64" cy="46" r="4.5" fill="#12263A"/>
+          <path d="M40 60 q12 12 24 0" stroke="#12263A" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <rect x="96" y="128" width="46" height="34" rx="6" fill="#FFC145" stroke="#12263A" stroke-width="5"/>
+          <text x="119" y="151" text-anchor="middle" font-size="18" font-family="'Baloo 2 Variable',cursive">$</text>
+        </g>
+        <!-- personaje 2 -->
+        <g transform="translate(760,330)">
+          <ellipse cx="46" cy="188" rx="48" ry="11" fill="#12263A" opacity=".13"/>
+          <rect x="26" y="132" width="16" height="56" rx="8" fill="#12263A"/>
+          <rect x="52" y="132" width="16" height="56" rx="8" fill="#12263A"/>
+          <path d="M12 68 q34 -20 68 0 v54 q-34 18 -68 0 Z" fill="#FF6B5B" stroke="#12263A" stroke-width="6"/>
+          <path d="M14 82 q-20 18 -12 46" stroke="#12263A" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M78 82 q20 16 12 44" stroke="#12263A" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <circle cx="46" cy="38" r="30" fill="#8D5A3B" stroke="#12263A" stroke-width="6"/>
+          <circle cx="16" cy="18" r="14" fill="#2A1B12"/><circle cx="46" cy="6" r="16" fill="#2A1B12"/><circle cx="74" cy="18" r="14" fill="#2A1B12"/>
+          <circle cx="36" cy="40" r="4" fill="#fff"/><circle cx="58" cy="40" r="4" fill="#fff"/>
+          <path d="M36 52 q10 10 20 0" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- OBJETIVOS -->
+  <div id="objetivos" class="mt-14">
+    <h2 class="font-display text-3xl md:text-4xl font-extrabold">🎯 Lo que vas a lograr</h2>
+    <p class="text-ink/75 mt-1 max-w-3xl">Cuatro superpoderes que se entrenan en este taller. Cada uno tiene su color y su misión.</p>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+      <div class="card-soft p-5 bg-mint">
+        <div class="text-3xl">🛠️</div>
+        <h3 class="font-display text-xl font-extrabold mt-1">Saber HACER</h3>
+        <p class="text-sm mt-2">Identificar, clasificar y registrar los elementos de la situación financiera usando la <b>partida doble</b> y la técnica del <b>débito y crédito</b>, con orden y precisión.</p>
+      </div>
+      <div class="card-soft p-5 bg-[#FFF3D6]">
+        <div class="text-3xl">⚖️</div>
+        <h3 class="font-display text-xl font-extrabold mt-1">Saber SER</h3>
+        <p class="text-sm mt-2">Aplicar los <b>PCGA</b> del marco colombiano con <b>integridad</b>: el equilibrio patrimonial es una prueba de verdad. Manipular cifras está prohibido.</p>
+      </div>
+      <div class="card-soft p-5 bg-[#FFE7E3]">
+        <div class="text-3xl">🌎</div>
+        <h3 class="font-display text-xl font-extrabold mt-1">Sociedad</h3>
+        <p class="text-sm mt-2">Evaluar cómo la información financiera afecta las decisiones de <b>bancos, inversionistas, el Estado</b> y la confianza de la gente.</p>
+      </div>
+      <div class="card-soft p-5 bg-[#EFEAFF]">
+        <div class="text-3xl">🌱</div>
+        <h3 class="font-display text-xl font-extrabold mt-1">Proyecto de vida</h3>
+        <p class="text-sm mt-2">Llevar el <b>equilibrio, la disciplina y el rigor</b> a tus propias decisiones: cada cifra representa personas y consecuencias reales.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RUTA -->
+  <div class="mt-12 card p-6 bg-white">
+    <h2 class="font-display text-2xl md:text-3xl font-extrabold">🗺️ Ruta del taller</h2>
+    <div class="grid md:grid-cols-3 gap-4 mt-4">
+      <a href="#m1" class="block p-4 rounded-2xl border-[3px] border-ink bg-mint hover:-translate-y-1 transition">
+        <p class="font-display font-extrabold text-lg">MÓDULO 1 · La Arquitectura Patrimonial</p>
+        <p class="text-sm mt-1">Elementos, clasificación, ecuación madre.</p>
+        <p class="text-xs mt-2 font-bold text-tealD">Nivel exploratorio · Producto 1: Mi Balance Personal Inicial</p>
+        <p class="text-xs mt-1" id="st-m1">Estado: pendiente</p>
+      </a>
+      <a href="#m2" class="block p-4 rounded-2xl border-[3px] border-ink bg-[#FFF3D6] hover:-translate-y-1 transition">
+        <p class="font-display font-extrabold text-lg">MÓDULO 2 · La Mecánica del Equilibrio</p>
+        <p class="text-sm mt-1">Débito, crédito, cuentas T, balance de comprobación.</p>
+        <p class="text-xs mt-2 font-bold text-[#B57A00]">Nivel intermedio · Producto 2: Ciclo contable de ArepaTech</p>
+        <p class="text-xs mt-1" id="st-m2">Estado: pendiente</p>
+      </a>
+      <a href="#m3" class="block p-4 rounded-2xl border-[3px] border-ink bg-[#FFE7E3] hover:-translate-y-1 transition">
+        <p class="font-display font-extrabold text-lg">MÓDULO 3 · El Ecosistema Económico</p>
+        <p class="text-sm mt-1">Stakeholders, decisiones y riesgos de desinformación.</p>
+        <p class="text-xs mt-2 font-bold text-coral">Nivel avanzado · Producto 3: Mapa mental + exposición</p>
+        <p class="text-xs mt-1" id="st-m3">Estado: pendiente</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- LOGROS -->
+  <div id="logros" class="mt-10 card p-6 bg-[#EFEAFF]">
+    <h2 class="font-display text-2xl font-extrabold">🏅 Mis insignias</h2>
+    <p class="text-sm text-ink/75">Completa actividades para ganar XP y desbloquear insignias.</p>
+    <div id="badges" class="flex flex-wrap gap-3 mt-4"></div>
+  </div>
+</section>
+
+<!-- ======================= MÓDULO 1 ======================= -->
+<section id="m1" class="py-12 border-t-4 border-dashed border-ink/30">
+  <div class="flex items-end gap-3 flex-wrap">
+    <span class="btn bg-teal text-white px-4 py-1 text-sm">MÓDULO 1</span>
+    <h2 class="font-display text-3xl md:text-5xl font-extrabold">La Arquitectura Patrimonial</h2>
+  </div>
+  <p class="mt-2 max-w-3xl text-ink/80 text-lg">Antes de construir un edificio necesitas planos. Aquí construimos los <b>planos de la riqueza</b>: qué tienes, qué debes y qué es realmente tuyo.</p>
+
+  <div class="grid lg:grid-cols-5 gap-6 mt-6 items-start">
+    <!-- ILUSTRACIÓN INVENTARIO CAÓTICO -->
+    <div class="lg:col-span-2 card p-3 bg-[#FFF3D6]">
+      <svg viewBox="0 0 800 480" class="w-full h-auto" role="img" aria-label="Escritorio desordenado con papeles y facturas">
+        <rect width="800" height="480" rx="22" fill="#FFF6E2"/>
+        <rect x="0" y="300" width="800" height="180" rx="22" fill="#E7B877"/>
+        <rect x="0" y="300" width="800" height="26" fill="#C9915A"/>
+        <!-- papeles desordenados -->
+        <g stroke="#12263A" stroke-width="5">
+          <g transform="rotate(-12 130 360)"><rect x="70" y="330" width="120" height="80" rx="6" fill="#fff"/><line x1="86" y1="352" x2="170" y2="352"/><line x1="86" y1="370" x2="150" y2="370"/><line x1="86" y1="388" x2="176" y2="388"/></g>
+          <g transform="rotate(9 250 390)"><rect x="200" y="356" width="110" height="72" rx="6" fill="#FFE9E5"/><line x1="214" y1="378" x2="292" y2="378"/><line x1="214" y1="396" x2="270" y2="396"/></g>
+          <g transform="rotate(-6 360 350)"><rect x="316" y="322" width="104" height="70" rx="6" fill="#E4F7F1"/><line x1="330" y1="344" x2="404" y2="344"/><line x1="330" y1="362" x2="386" y2="362"/></g>
+          <circle cx="470" cy="386" r="26" fill="#FFD84D"/><circle cx="512" cy="402" r="20" fill="#FFC145"/><circle cx="452" cy="424" r="16" fill="#FFD84D"/>
+          <g transform="rotate(14 600 380)"><rect x="548" y="344" width="128" height="82" rx="8" fill="#fff"/><rect x="566" y="362" width="92" height="46" rx="4" fill="#7A5AF8"/><circle cx="612" cy="385" r="12" fill="#FFC145"/></g>
+          <g transform="rotate(-8 720 350)"><rect x="686" y="318" width="94" height="66" rx="6" fill="#EFEAFF"/><line x1="700" y1="340" x2="766" y2="340"/><line x1="700" y1="358" x2="742" y2="358"/></g>
+        </g>
+        <!-- adolescente confundido -->
+        <g transform="translate(250,60)">
+          <path d="M70 190 q-24 -40 -6 -78" stroke="#12263A" stroke-width="12" fill="none" stroke-linecap="round"/>
+          <path d="M170 190 q26 -34 10 -74" stroke="#12263A" stroke-width="12" fill="none" stroke-linecap="round"/>
+          <path d="M60 128 q60 -30 120 0 v62 q-60 26 -120 0 Z" fill="#0FA3A3" stroke="#12263A" stroke-width="6"/>
+          <circle cx="120" cy="86" r="52" fill="#F3C69B" stroke="#12263A" stroke-width="6"/>
+          <path d="M68 76 q8 -50 52 -50 t52 50 q-16 -26 -52 -22 t-52 22 Z" fill="#2A1B12" stroke="#12263A" stroke-width="5"/>
+          <circle cx="102" cy="90" r="6" fill="#12263A"/><circle cx="140" cy="90" r="6" fill="#12263A"/>
+          <path d="M96 74 q8 -8 16 -2" stroke="#12263A" stroke-width="4" fill="none"/>
+          <path d="M134 72 q8 -6 16 2" stroke="#12263A" stroke-width="4" fill="none"/>
+          <ellipse cx="121" cy="112" rx="13" ry="9" fill="#12263A"/>
+        </g>
+        <g fill="#FF6B5B" font-family="'Baloo 2 Variable',cursive" font-size="52" font-weight="800">
+          <text x="500" y="120">?</text><text x="560" y="86" font-size="38">?</text><text x="620" y="140" font-size="44">?</text>
+        </g>
+        <text x="400" y="470" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="26" fill="#12263A">¡40 elementos revueltos! ¿Cuál es activo y cuál es pasivo?</text>
+      </svg>
+    </div>
+
+    <!-- CONCEPTOS -->
+    <div class="lg:col-span-3 space-y-4">
+      <div class="card p-5 bg-white">
+        <h3 class="font-display text-2xl font-extrabold">🧱 Los 5 ladrillos de la contabilidad</h3>
+        <p class="text-sm text-ink/75 mt-1">Toca cada tarjeta para girarla y descubrir su secreto.</p>
+        <div class="grid sm:grid-cols-2 gap-3 mt-4" id="ladrillos"></div>
+      </div>
+      <div class="card p-5 bg-mint">
+        <h3 class="font-display text-2xl font-extrabold">🏛️ La Ecuación Madre</h3>
+        <p class="text-sm mt-1">Todo lo que una persona o empresa <b>tiene</b> salió de alguna parte: o lo pusieron los dueños, o lo prestó alguien. Por eso la balanza <b>nunca</b> se cae.</p>
+        <div class="mt-3 p-4 rounded-2xl border-[3px] border-ink bg-white text-center">
+          <p class="font-display text-2xl md:text-3xl font-extrabold">
+            <span class="text-teal">ACTIVO</span> = <span class="text-coral">PASIVO</span> + <span class="text-plum">PATRIMONIO</span>
+          </p>
+          <p class="text-sm text-ink/70 mt-1">Patrimonio = Activo − Pasivo → esa es tu <b>riqueza neta</b> 🎒</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVIDAD 1: INVENTARIO CAÓTICO -->
+  <div class="card mt-8 p-5 md:p-7 bg-white" id="actInventario">
+    <div class="flex flex-wrap items-center gap-3">
+      <h3 class="font-display text-2xl md:text-3xl font-extrabold">🧩 Actividad rompehielo: El Inventario Caótico</h3>
+      <span class="btn bg-mustard px-3 py-1 text-xs">+60 XP</span>
+    </div>
+    <p class="mt-2 text-ink/80 max-w-4xl">
+      Llega una caja con <b>40 elementos revueltos</b> de la vida real y de un negocio. Tu misión: <b>arrastrar cada uno a la canasta correcta</b>
+      (o tocarlo y luego tocar la canasta). Usa los códigos del <b>PUC</b> (Plan Único de Cuentas colombiano) como pista: los que empiezan por <b>1</b> son activos,
+      por <b>2</b> pasivos, por <b>3</b> patrimonio, por <b>4</b> ingresos y por <b>5</b> gastos.
+    </p>
+    <div class="flex flex-wrap gap-2 mt-4 items-center">
+      <button id="btnRevisarInv" class="btn bg-teal text-white px-5 py-2">✅ Revisar clasificación</button>
+      <button id="btnPistaInv" class="btn bg-white px-5 py-2">💡 Pista (<span id="pistasLeft">5</span>)</button>
+      <button id="btnResetInv" class="btn bg-white px-5 py-2">↺ Reiniciar</button>
+      <span class="text-sm font-bold ml-auto">Clasificados: <span id="invCount">0</span>/40 · Aciertos: <span id="invOk">0</span></span>
+    </div>
+
+    <div id="trayInv" class="mt-5 p-4 rounded-2xl border-[3px] border-dashed border-ink/40 bg-cream flex flex-wrap gap-2 min-h-[90px]"></div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mt-5" id="binsInv">
+      <div class="bin p-3 bg-mint" data-cat="A"><p class="font-display font-extrabold text-lg">1 · ACTIVO</p><p class="text-xs mb-2 text-ink/70">Lo que tengo y me genera valor</p><div class="bin-body flex flex-col gap-2"></div></div>
+      <div class="bin p-3 bg-[#FFE7E3]" data-cat="P"><p class="font-display font-extrabold text-lg">2 · PASIVO</p><p class="text-xs mb-2 text-ink/70">Lo que debo a otros</p><div class="bin-body flex flex-col gap-2"></div></div>
+      <div class="bin p-3 bg-[#EFEAFF]" data-cat="PT"><p class="font-display font-extrabold text-lg">3 · PATRIMONIO</p><p class="text-xs mb-2 text-ink/70">Lo que es realmente de los dueños</p><div class="bin-body flex flex-col gap-2"></div></div>
+      <div class="bin p-3 bg-[#FFF3D6]" data-cat="I"><p class="font-display font-extrabold text-lg">4 · INGRESO</p><p class="text-xs mb-2 text-ink/70">Dinero que entra por mi actividad</p><div class="bin-body flex flex-col gap-2"></div></div>
+      <div class="bin p-3 bg-[#F0F0F5]" data-cat="G"><p class="font-display font-extrabold text-lg">5 · GASTO</p><p class="text-xs mb-2 text-ink/70">Lo que consumo para poder operar</p><div class="bin-body flex flex-col gap-2"></div></div>
+    </div>
+    <div id="invFeedback" class="mt-4 hidden p-4 rounded-2xl border-[3px] border-ink"></div>
+  </div>
+
+  <!-- ACTIVIDAD 2: ECUACIÓN VIVA -->
+  <div class="grid lg:grid-cols-2 gap-6 mt-8">
+    <div class="card p-5 bg-[#FFF3D6]" id="actEcuacion">
+      <div class="flex items-center gap-2 flex-wrap">
+        <h3 class="font-display text-2xl font-extrabold">⚖️ La balanza viva</h3>
+        <span class="btn bg-white px-3 py-1 text-xs">+40 XP</span>
+      </div>
+      <p class="text-sm mt-1">Mueve las barras y observa cómo el patrimonio se ajusta solo. Luego aplica eventos reales y comprueba que <b>la ecuación siempre queda equilibrada</b>.</p>
+      <div class="mt-4 space-y-3">
+        <div>
+          <label class="font-display font-bold text-sm">Activo (lo que tengo): <span id="lblA" class="text-teal"></span></label>
+          <input id="sldA" type="range" min="0" max="20000000" step="500000" value="8000000" class="range w-full">
+        </div>
+        <div>
+          <label class="font-display font-bold text-sm">Pasivo (lo que debo): <span id="lblP" class="text-coral"></span></label>
+          <input id="sldP" type="range" min="0" max="20000000" step="500000" value="3000000" class="range w-full">
+        </div>
+      </div>
+      <div class="mt-4 rounded-2xl border-[3px] border-ink bg-white p-4">
+        <div class="flex items-center justify-between font-display font-extrabold text-lg">
+          <span>PATRIMONIO (riqueza neta)</span><span id="lblPT">—</span>
+        </div>
+        <div class="mt-3 h-9 rounded-xl border-[3px] border-ink overflow-hidden flex bg-cream">
+          <div id="barP" class="h-full bg-coral transition-all duration-500" style="width:0%"></div>
+          <div id="barPT" class="h-full bg-plum transition-all duration-500" style="width:0%"></div>
+        </div>
+        <p class="text-xs mt-1 flex gap-4"><span>🟥 Deudas</span><span class="text-plum">🟪 Lo mío</span></p>
+        <p id="ecuMsg" class="mt-3 text-sm font-bold p-3 rounded-xl bg-mint border-2 border-ink"></p>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <button class="btn bg-white px-3 py-2 text-xs" data-ev="prestamo">🏦 Me prestan $2.000.000</button>
+        <button class="btn bg-white px-3 py-2 text-xs" data-ev="pago">💸 Pago $1.000.000 de deuda</button>
+        <button class="btn bg-white px-3 py-2 text-xs" data-ev="aporte">🤝 Aporte del dueño $1.000.000</button>
+        <button class="btn bg-white px-3 py-2 text-xs" data-ev="credito">📦 Compro mercancía a crédito $1.500.000</button>
+      </div>
+      <p id="evLog" class="text-sm mt-3 font-bold text-tealD"></p>
+    </div>
+
+    <!-- PRODUCTO 1 -->
+    <div class="card p-5 bg-white" id="actBalance">
+      <div class="flex items-center gap-2 flex-wrap">
+        <h3 class="font-display text-2xl font-extrabold">🎒 Producto 1 · Mi Balance Personal Inicial</h3>
+        <span class="btn bg-mustard px-3 py-1 text-xs">+50 XP</span>
+      </div>
+      <svg viewBox="0 0 800 260" class="w-full h-auto mt-2" role="img" aria-label="Lo que tengo versus lo que debo">
+        <rect width="800" height="260" rx="20" fill="#E4F7F1"/>
+        <rect x="330" y="30" width="140" height="200" rx="12" fill="#fff" stroke="#12263A" stroke-width="5"/>
+        <text x="400" y="66" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="20" fill="#12263A">MI RIQUEZA</text>
+        <text x="400" y="94" text-anchor="middle" font-size="15" fill="#12263A">= TENGO − DEBO</text>
+        <g stroke="#12263A" stroke-width="5">
+          <circle cx="120" cy="90" r="34" fill="#FFD84D"/><text x="120" y="100" text-anchor="middle" font-size="26" font-family="'Baloo 2 Variable',cursive">$</text>
+          <rect x="180" y="60" width="90" height="60" rx="8" fill="#7A5AF8"/><rect x="192" y="72" width="66" height="36" rx="4" fill="#D8D2FF"/>
+          <circle cx="90" cy="180" r="30" fill="#FF9EC7"/><circle cx="112" cy="172" r="5" fill="#12263A"/>
+          <rect x="150" y="150" width="70" height="56" rx="8" fill="#fff"/>
+        </g>
+        <text x="150" y="240" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="22" fill="#0B7C7C">LO QUE TENGO ✅</text>
+        <g stroke="#12263A" stroke-width="5">
+          <rect x="560" y="60" width="110" height="76" rx="8" fill="#fff"/><line x1="576" y1="84" x2="654" y2="84"/><line x1="576" y1="104" x2="636" y2="104"/>
+          <rect x="600" y="156" width="110" height="66" rx="8" fill="#FFE9E5"/><line x1="616" y1="180" x2="694" y2="180"/><line x1="616" y1="200" x2="676" y2="200"/>
+        </g>
+        <text x="640" y="248" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="22" fill="#FF6B5B">LO QUE DEBO ⚠️</text>
+      </svg>
+      <p class="text-sm mt-2">Agrega tus bienes y deudas <b>reales o simulados</b>. El sistema arma tu ecuación patrimonial al instante.</p>
+      <div id="balRows" class="mt-3 space-y-2"></div>
+      <div class="flex flex-wrap gap-2 mt-3">
+        <button id="btnAddRow" class="btn bg-teal text-white px-4 py-2 text-sm">➕ Agregar elemento</button>
+        <button id="btnCalcBal" class="btn bg-mustard px-4 py-2 text-sm">🧮 Calcular mi patrimonio</button>
+        <button id="btnPrintBal" class="btn bg-white px-4 py-2 text-sm">🖨️ Imprimir mi balance</button>
+      </div>
+      <div id="balResult" class="mt-4 hidden"></div>
+    </div>
+  </div>
+
+  <div class="mt-6 card p-5 bg-[#EFEAFF]">
+    <h3 class="font-display text-xl font-extrabold">🤔 Reflexión del Módulo 1</h3>
+    <p class="text-sm mt-1 max-w-4xl">Si dos compañeros clasifican el mismo elemento en canastas distintas, <b>uno de los dos está mostrando una realidad falsa</b>. Por eso existen normas comunes (los PCGA y el PUC): para que todos midamos con la misma regla. ¿Qué pasaría si cada persona inventara sus propias reglas en un juego?</p>
+    <textarea id="reflex1" class="w-full mt-3 p-3 rounded-2xl border-[3px] border-ink bg-white text-sm" rows="3" placeholder="Escribe aquí tu reflexión (mínimo 2 ideas)..."></textarea>
+    <button id="btnReflex1" class="btn bg-white mt-2 px-4 py-2 text-sm">💾 Guardar reflexión (+20 XP)</button>
+  </div>
+</section>
+
+<!-- ======================= MÓDULO 2 ======================= -->
+<section id="m2" class="py-12 border-t-4 border-dashed border-ink/30">
+  <div class="flex items-end gap-3 flex-wrap">
+    <span class="btn bg-mustard px-4 py-1 text-sm">MÓDULO 2</span>
+    <h2 class="font-display text-3xl md:text-5xl font-extrabold">La Mecánica del Equilibrio</h2>
+  </div>
+  <p class="mt-2 max-w-3xl text-ink/80 text-lg">En física, toda acción tiene una reacción. En contabilidad, <b>todo movimiento económico tiene dos lados</b>: ese es el corazón de la partida doble.</p>
+
+  <div class="grid lg:grid-cols-2 gap-6 mt-6 items-start">
+    <div class="card p-3 bg-[#FFF3D6]">
+      <svg viewBox="0 0 800 420" class="w-full h-auto" role="img" aria-label="Cuentas T y balancín equilibrado">
+        <rect width="800" height="420" rx="22" fill="#1E5B50"/>
+        <rect x="26" y="26" width="748" height="368" rx="16" fill="#256B5E"/>
+        <text x="400" y="70" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="30" fill="#FFF8EC">PARTIDA DOBLE: DOS LADOS, UN MISMO VALOR</text>
+        <g stroke="#FFF8EC" stroke-width="7" stroke-linecap="round">
+          <line x1="240" y1="110" x2="240" y2="230"/><line x1="150" y1="110" x2="330" y2="110"/>
+          <line x1="560" y1="110" x2="560" y2="230"/><line x1="470" y1="110" x2="650" y2="110"/>
+        </g>
+        <text x="195" y="150" text-anchor="middle" font-size="22" fill="#FFD84D" font-family="'Baloo 2 Variable',cursive">DÉBITO</text>
+        <text x="290" y="150" text-anchor="middle" font-size="22" fill="#FF9E93" font-family="'Baloo 2 Variable',cursive">CRÉDITO</text>
+        <text x="515" y="150" text-anchor="middle" font-size="22" fill="#FFD84D" font-family="'Baloo 2 Variable',cursive">DÉBITO</text>
+        <text x="610" y="150" text-anchor="middle" font-size="22" fill="#FF9E93" font-family="'Baloo 2 Variable',cursive">CRÉDITO</text>
+        <text x="195" y="200" text-anchor="middle" font-size="24" fill="#FFF8EC">5.000.000</text>
+        <text x="610" y="200" text-anchor="middle" font-size="24" fill="#FFF8EC">5.000.000</text>
+        <!-- balancín -->
+        <g transform="translate(250,250)">
+          <path d="M130 110 L170 110 L150 60 Z" fill="#FFC145" stroke="#12263A" stroke-width="5"/>
+          <g class="anim-balance" style="transform-origin:150px 60px">
+            <rect x="10" y="52" width="280" height="14" rx="7" fill="#FFF8EC" stroke="#12263A" stroke-width="4"/>
+            <circle cx="46" cy="44" r="18" fill="#FFD84D" stroke="#12263A" stroke-width="4"/>
+            <circle cx="254" cy="44" r="18" fill="#FF9E93" stroke="#12263A" stroke-width="4"/>
+          </g>
+        </g>
+        <text x="400" y="386" text-anchor="middle" font-size="20" fill="#FFF8EC" opacity=".9">Suma de débitos = Suma de créditos → ¡la balanza no se cae!</text>
+      </svg>
+    </div>
+    <div class="card p-5 bg-white">
+      <h3 class="font-display text-2xl font-extrabold">🃏 Reglas inmutables del débito y el crédito</h3>
+      <p class="text-sm text-ink/75 mt-1">Toca cada tarjeta: la naturaleza de la cuenta decide dónde aumenta.</p>
+      <div class="grid sm:grid-cols-2 gap-3 mt-4" id="reglas"></div>
+      <div class="mt-4 p-3 rounded-2xl bg-mint border-[3px] border-ink text-sm">
+        <b>Truco para no olvidar:</b> las cuentas <b>1 y 5</b> (activos y gastos) crecen por la <b>izquierda (DÉBITO)</b>;
+        las cuentas <b>2, 3 y 4</b> (pasivos, patrimonio e ingresos) crecen por la <b>derecha (CRÉDITO)</b>.
+      </div>
+    </div>
+  </div>
+
+  <!-- SIMULADOR AREPATECH -->
+  <div class="card mt-8 p-5 md:p-7 bg-white" id="actDiario">
+    <div class="flex flex-wrap items-center gap-3">
+      <h3 class="font-display text-2xl md:text-3xl font-extrabold">🥞 Producto 2 · Ciclo contable de "Arepatech"</h3>
+      <span class="btn bg-mustard px-3 py-1 text-xs">+80 XP</span>
+    </div>
+    <p class="mt-2 text-ink/80 max-w-4xl">Trabaja en pareja: uno lee la transacción en voz alta y el otro identifica <b>qué cuentas se mueven</b> y <b>hacia qué lado</b>.
+      Registra las 7 operaciones del mes y el sistema armará solo el <b>libro diario</b>, las <b>cuentas T</b>, el <b>balance de comprobación</b> y los <b>estados financieros</b>.</p>
+    <label class="inline-flex items-center gap-2 mt-3 text-sm font-bold bg-cream border-2 border-ink rounded-full px-3 py-1.5">
+      <input id="modoExperto" type="checkbox" class="w-4 h-4 accent-coral"> Modo experto (también debo escribir los valores)
+    </label>
+
+    <div id="transList" class="mt-5 space-y-4"></div>
+
+    <div class="flex flex-wrap gap-2 mt-5">
+      <button id="btnRefreshLedger" class="btn bg-teal text-white px-5 py-2">📊 Actualizar libros contables</button>
+      <button id="btnResetLedger" class="btn bg-white px-5 py-2">↺ Reiniciar registros</button>
+      <span id="ledgerStatus" class="text-sm font-bold ml-auto self-center"></span>
+    </div>
+  </div>
+
+  <!-- LIBROS -->
+  <div class="grid lg:grid-cols-2 gap-6 mt-8">
+    <div class="card p-5 bg-mint">
+      <h3 class="font-display text-2xl font-extrabold">📘 Libro diario + Cuentas T</h3>
+      <p class="text-sm text-ink/75">Cada fila del diario muestra el débito arriba y el crédito abajo (como se hace en la vida real).</p>
+      <div id="libroDiario" class="mt-3 overflow-x-auto scroll-x"></div>
+      <div id="cuentasT" class="mt-5 grid sm:grid-cols-2 gap-3"></div>
+    </div>
+    <div class="card p-5 bg-white">
+      <h3 class="font-display text-2xl font-extrabold">🧾 Balance de comprobación</h3>
+      <p class="text-sm text-ink/75">La prueba de fuego: la suma de la columna débito <b>debe ser idéntica</b> a la de crédito.</p>
+      <div id="balComp" class="mt-3 overflow-x-auto scroll-x"></div>
+      <div id="balCompBanner" class="mt-3"></div>
+      <div id="estados" class="mt-4 grid sm:grid-cols-2 gap-3"></div>
+    </div>
+  </div>
+
+  <!-- ERROR DOMINÓ -->
+  <div class="card mt-8 p-5 md:p-7 bg-[#FFE7E3]" id="actError">
+    <div class="flex items-center gap-2 flex-wrap">
+      <h3 class="font-display text-2xl md:text-3xl font-extrabold">💥 El efecto dominó de un error de signo</h3>
+      <span class="btn bg-white px-3 py-1 text-xs">+30 XP</span>
+    </div>
+    <svg viewBox="0 0 900 250" class="w-full h-auto mt-3" role="img" aria-label="Fichas de dominó que caen representando la propagación del error">
+      <rect width="900" height="250" rx="20" fill="#FFF1EE"/>
+      <line x1="20" y1="200" x2="880" y2="200" stroke="#12263A" stroke-width="6"/>
+      <g>
+        <g transform="rotate(18 80 200)"><rect x="60" y="120" width="34" height="80" rx="6" fill="#FF6B5B" stroke="#12263A" stroke-width="5"/><text x="77" y="170" text-anchor="middle" font-size="30" fill="#fff" font-weight="800">−</text></g>
+        <g transform="rotate(28 170 200)"><rect x="152" y="112" width="36" height="88" rx="6" fill="#FFC145" stroke="#12263A" stroke-width="5"/><text x="170" y="166" text-anchor="middle" font-size="16" fill="#12263A" font-family="'Baloo 2 Variable',cursive">T</text></g>
+        <g transform="rotate(40 270 200)"><rect x="250" y="100" width="40" height="100" rx="6" fill="#fff" stroke="#12263A" stroke-width="5"/><text x="270" y="160" text-anchor="middle" font-size="14" fill="#12263A" font-family="'Baloo 2 Variable',cursive">DIARIO</text></g>
+        <g transform="rotate(56 380 200)"><rect x="356" y="86" width="46" height="114" rx="6" fill="#E4F7F1" stroke="#12263A" stroke-width="5"/><text x="379" y="150" text-anchor="middle" font-size="13" fill="#12263A" font-family="'Baloo 2 Variable',cursive">MAYOR</text></g>
+        <g transform="rotate(70 500 200)"><rect x="474" y="72" width="52" height="128" rx="6" fill="#EFEAFF" stroke="#12263A" stroke-width="5"/><text x="500" y="140" text-anchor="middle" font-size="12" fill="#12263A" font-family="'Baloo 2 Variable',cursive">ESTADOS FIN.</text></g>
+        <g transform="rotate(84 630 200)"><rect x="600" y="60" width="58" height="140" rx="8" fill="#fff" stroke="#12263A" stroke-width="5"/><rect x="612" y="80" width="34" height="26" rx="3" fill="#0FA3A3"/><rect x="606" y="118" width="46" height="60" rx="3" fill="#FFC145"/></g>
+      </g>
+      <g transform="translate(700,90)">
+        <path d="M40 110 L90 110 L78 82 L52 82 Z" fill="#FFC145" stroke="#12263A" stroke-width="5"/>
+        <rect x="60" y="30" width="10" height="54" rx="5" fill="#12263A"/>
+        <g transform="rotate(-16 65 32)"><rect x="10" y="26" width="110" height="10" rx="5" fill="#FF6B5B" stroke="#12263A" stroke-width="4"/></g>
+        <text x="65" y="146" text-anchor="middle" font-size="15" font-family="'Baloo 2 Variable',cursive" fill="#12263A">¡DECISIÓN MAL TOMADA!</text>
+      </g>
+      <text x="450" y="238" text-anchor="middle" font-size="17" font-family="'Baloo 2 Variable',cursive" fill="#12263A">Un error pequeño al inicio se vuelve gigante al final</text>
+    </svg>
+
+    <p class="mt-3 text-sm">Prueba qué pasa con los libros de Arepatech si cometes uno de estos dos errores tan comunes:</p>
+    <div class="grid md:grid-cols-3 gap-3 mt-3" id="errorOpts">
+      <label class="p-3 rounded-2xl border-[3px] border-ink bg-white cursor-pointer">
+        <input type="radio" name="errMode" value="0" class="accent-coral" checked>
+        <b>😇 Sin errores</b><p class="text-xs mt-1">Registro perfecto, tal como debe ser.</p>
+      </label>
+      <label class="p-3 rounded-2xl border-[3px] border-ink bg-white cursor-pointer">
+        <input type="radio" name="errMode" value="1" class="accent-coral">
+        <b>😱 Error 1: se me olvidó un lado</b><p class="text-xs mt-1">Registré el crédito de la venta pero olvidé el débito en Caja.</p>
+      </label>
+      <label class="p-3 rounded-2xl border-[3px] border-ink bg-white cursor-pointer">
+        <input type="radio" name="errMode" value="2" class="accent-coral">
+        <b>🕵️ Error 2: cuenta equivocada</b><p class="text-xs mt-1">Registré el arriendo como si fuera mercancía (Inventarios) y no como gasto.</p>
+      </label>
+    </div>
+    <div id="errorResult" class="mt-4"></div>
+  </div>
+</section>
+
+<!-- ======================= MÓDULO 3 ======================= -->
+<section id="m3" class="py-12 border-t-4 border-dashed border-ink/30">
+  <div class="flex items-end gap-3 flex-wrap">
+    <span class="btn bg-coral text-white px-4 py-1 text-sm">MÓDULO 3</span>
+    <h2 class="font-display text-3xl md:text-5xl font-extrabold">El Ecosistema Económico y sus Actores</h2>
+  </div>
+  <p class="mt-2 max-w-3xl text-ink/80 text-lg">Los números no se quedan en el cuaderno: <b>viajan</b> y terminan en las manos de personas que toman decisiones con ellos.</p>
+
+  <div class="card p-3 bg-white mt-6">
+    <svg viewBox="0 0 960 500" class="w-full h-auto" role="img" aria-label="Mapa del ecosistema económico con la empresa en el centro">
+      <rect width="960" height="500" rx="22" fill="#F3FBF8"/>
+      <g stroke="#0FA3A3" stroke-width="5" stroke-dasharray="14 10" fill="none" opacity=".8">
+        <path d="M480 250 L170 130"/><path d="M480 250 L790 130"/><path d="M480 250 L150 370"/><path d="M480 250 L810 370"/><path d="M480 250 L480 90"/>
+      </g>
+      <!-- empresa centro -->
+      <g transform="translate(390,180)">
+        <rect x="0" y="30" width="180" height="120" rx="12" fill="#FFC145" stroke="#12263A" stroke-width="6"/>
+        <path d="M-10 34 L90 -12 L190 34 Z" fill="#FF6B5B" stroke="#12263A" stroke-width="6"/>
+        <rect x="30" y="70" width="40" height="46" rx="4" fill="#fff" stroke="#12263A" stroke-width="4"/>
+        <rect x="100" y="70" width="50" height="34" rx="4" fill="#E4F7F1" stroke="#12263A" stroke-width="4"/>
+        <rect x="52" y="146" width="76" height="60" rx="8" fill="#fff" stroke="#12263A" stroke-width="5"/>
+        <line x1="64" y1="162" x2="116" y2="162" stroke="#0FA3A3" stroke-width="4"/>
+        <line x1="64" y1="176" x2="116" y2="176" stroke="#0FA3A3" stroke-width="4"/>
+        <line x1="64" y1="190" x2="100" y2="190" stroke="#0FA3A3" stroke-width="4"/>
+        <text x="90" y="230" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="22" fill="#12263A">LA EMPRESA</text>
+        <text x="90" y="252" text-anchor="middle" font-size="14" fill="#12263A" opacity=".75">información financiera</text>
+      </g>
+      <!-- banco -->
+      <g transform="translate(60,60)">
+        <rect x="0" y="120" width="180" height="16" rx="6" fill="#0FA3A3" stroke="#12263A" stroke-width="5"/>
+        <path d="M10 120 L90 70 L170 120 Z" fill="#fff" stroke="#12263A" stroke-width="5"/>
+        <rect x="26" y="76" width="18" height="44" fill="#E4F7F1" stroke="#12263A" stroke-width="4"/>
+        <rect x="70" y="76" width="18" height="44" fill="#E4F7F1" stroke="#12263A" stroke-width="4"/>
+        <rect x="114" y="76" width="18" height="44" fill="#E4F7F1" stroke="#12263A" stroke-width="4"/>
+        <text x="90" y="170" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="20" fill="#12263A">🏦 BANCOS</text>
+        <text x="90" y="192" text-anchor="middle" font-size="13" fill="#12263A" opacity=".75">¿Le presto dinero?</text>
+      </g>
+      <!-- estado -->
+      <g transform="translate(700,50)">
+        <rect x="20" y="70" width="140" height="80" rx="8" fill="#EFEAFF" stroke="#12263A" stroke-width="5"/>
+        <path d="M60 70 a30 30 0 0 1 60 0" fill="#7A5AF8" stroke="#12263A" stroke-width="5"/>
+        <rect x="84" y="18" width="8" height="44" fill="#12263A"/>
+        <path d="M92 18 l40 12 l-40 12 Z" fill="#FFC145" stroke="#12263A" stroke-width="4"/>
+        <text x="90" y="184" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="20" fill="#12263A">🏛️ EL ESTADO</text>
+        <text x="90" y="206" text-anchor="middle" font-size="13" fill="#12263A" opacity=".75">impuestos y formalidad</text>
+      </g>
+      <!-- proveedores -->
+      <g transform="translate(40,300)">
+        <rect x="10" y="60" width="120" height="60" rx="8" fill="#fff" stroke="#12263A" stroke-width="5"/>
+        <path d="M130 78 h44 l26 26 v16 h-70 Z" fill="#FFC145" stroke="#12263A" stroke-width="5"/>
+        <circle cx="52" cy="128" r="16" fill="#12263A"/><circle cx="52" cy="128" r="6" fill="#fff"/>
+        <circle cx="164" cy="128" r="16" fill="#12263A"/><circle cx="164" cy="128" r="6" fill="#fff"/>
+        <text x="100" y="180" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="20" fill="#12263A">🚚 PROVEEDORES</text>
+        <text x="100" y="202" text-anchor="middle" font-size="13" fill="#12263A" opacity=".75">¿Le fío mercancía?</text>
+      </g>
+      <!-- administradores -->
+      <g transform="translate(400,20)">
+        <circle cx="46" cy="34" r="22" fill="#F3C69B" stroke="#12263A" stroke-width="5"/>
+        <path d="M16 96 q30 -34 60 0 Z" fill="#0FA3A3" stroke="#12263A" stroke-width="5"/>
+        <path d="M96 90 l40 -22 l10 18 l-40 22 Z" fill="#fff" stroke="#12263A" stroke-width="5"/>
+        <path d="M104 82 l18 -10" stroke="#3DBE73" stroke-width="5"/>
+        <text x="80" y="132" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="20" fill="#12263A">📈 ADMINISTRADORES</text>
+      </g>
+      <!-- inversionistas -->
+      <g transform="translate(730,300)">
+        <rect x="10" y="20" width="140" height="100" rx="10" fill="#fff" stroke="#12263A" stroke-width="5"/>
+        <path d="M28 100 L58 66 L84 84 L126 38" stroke="#3DBE73" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <circle cx="126" cy="38" r="8" fill="#FFC145" stroke="#12263A" stroke-width="4"/>
+        <text x="80" y="152" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="20" fill="#12263A">💼 INVERSIONISTAS</text>
+        <text x="80" y="174" text-anchor="middle" font-size="13" fill="#12263A" opacity=".75">¿Vale la pena invertir?</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- MINI CONFERENCIA -->
+  <div class="card mt-8 p-5 md:p-7 bg-white">
+    <h3 class="font-display text-2xl md:text-3xl font-extrabold">🎤 Mini-conferencia interactiva: "¿Para quién contamos?"</h3>
+    <p class="text-sm text-ink/75">Avanza por las diapositivas como en una charla TED para jóvenes.</p>
+    <div id="slides" class="mt-4"></div>
+    <div class="flex items-center gap-3 mt-4">
+      <button id="slidePrev" class="btn bg-white px-4 py-2">⬅️ Anterior</button>
+      <div id="slideDots" class="flex gap-2"></div>
+      <button id="slideNext" class="btn bg-teal text-white px-4 py-2 ml-auto">Siguiente ➡️</button>
+    </div>
+  </div>
+
+  <!-- CASOS -->
+  <div class="mt-8">
+    <div class="flex flex-wrap gap-2" id="casoTabs"></div>
+    <div id="casoBody" class="card p-5 md:p-7 bg-white mt-4"></div>
+  </div>
+
+  <!-- PRODUCTO 3 MAPA MENTAL -->
+  <div class="card mt-8 p-5 md:p-7 bg-[#EFEAFF]" id="actMapa">
+    <div class="flex items-center gap-2 flex-wrap">
+      <h3 class="font-display text-2xl md:text-3xl font-extrabold">🧠 Producto 3 · Mapa mental del ecosistema</h3>
+      <span class="btn bg-white px-3 py-1 text-xs">+70 XP</span>
+    </div>
+    <p class="text-sm mt-1 max-w-4xl">Construye tu mapa: arrastra las fichas, escribe dentro de ellas y conecta ideas. Debe tener al menos
+      <b>1 actor</b>, <b>2 oportunidades de decisión</b> y <b>2 riesgos de desinformación</b>. Este mapa es la base de tu exposición.</p>
+    <div class="flex flex-wrap gap-2 mt-3">
+      <select id="mapaSelect" class="border-[3px] border-ink rounded-full px-3 py-2 bg-white text-sm font-bold">
+        <option value="caso1">Caso: Bancos e inversionistas</option>
+        <option value="caso2">Caso: Estado y sociedad</option>
+        <option value="caso3">Caso: Administradores</option>
+        <option value="caso4">Caso: Proveedores y acreedores</option>
+      </select>
+      <button data-add="actor" class="btn bg-teal text-white px-4 py-2 text-sm">➕ Actor</button>
+      <button data-add="oportunidad" class="btn bg-leaf text-white px-4 py-2 text-sm">➕ Oportunidad de decisión</button>
+      <button data-add="riesgo" class="btn bg-coral text-white px-4 py-2 text-sm">➕ Riesgo de desinformación</button>
+      <button id="mapaLink" class="btn bg-white px-4 py-2 text-sm">🔗 Conectar</button>
+      <button id="mapaEjemplo" class="btn bg-mustard px-4 py-2 text-sm">✨ Cargar ejemplo</button>
+      <button id="mapaReset" class="btn bg-white px-4 py-2 text-sm">🧹 Reiniciar</button>
+      <button id="mapaCheck" class="btn bg-ink text-white px-4 py-2 text-sm">✅ Validar mapa</button>
+    </div>
+    <div id="mapaWrap" class="relative mt-4 rounded-2xl border-[3px] border-ink bg-white overflow-hidden" style="height:520px">
+      <svg id="mapaSvg" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
+      <div id="mapaNodes" class="absolute inset-0"></div>
+    </div>
+    <p id="mapaMsg" class="text-sm font-bold mt-2"></p>
+  </div>
+</section>
+
+<!-- ======================= RETO FINAL ======================= -->
+<section id="reto" class="py-12 border-t-4 border-dashed border-ink/30">
+  <span class="btn bg-plum text-white px-4 py-1 text-sm">RETO FINAL</span>
+  <h2 class="font-display text-3xl md:text-5xl font-extrabold mt-3">🏁 El gran examen del ciudadano económico</h2>
+  <p class="mt-2 max-w-3xl text-ink/80 text-lg">10 preguntas para demostrar que dominas la lógica financiera. Cada respuesta trae explicación.</p>
+  <div class="card p-5 md:p-7 bg-white mt-6" id="quizBox"></div>
+</section>
+
+<!-- ======================= DIPLOMA ======================= -->
+<section id="diploma" class="py-12 border-t-4 border-dashed border-ink/30">
+  <h2 class="font-display text-3xl md:text-5xl font-extrabold">🎓 Mi diploma</h2>
+  <p class="mt-2 text-ink/80">Escribe tu nombre completo para generar tu certificado del taller. Luego puedes imprimirlo o guardarlo como PDF.</p>
+  <div class="flex flex-wrap gap-3 items-center mt-4">
+    <input id="nombreDiploma" type="text" placeholder="Ej.: Valentina Rodríguez Gómez" class="border-[3px] border-ink rounded-full px-4 py-2 bg-white w-full sm:w-96 font-bold">
+    <button id="btnDiploma" class="btn bg-mustard px-5 py-2">🏅 Generar diploma</button>
+    <button id="btnPrint" class="btn bg-teal text-white px-5 py-2">🖨️ Imprimir / PDF</button>
+  </div>
+
+  <div id="certCard" class="mt-8 mx-auto max-w-4xl bg-white border-[6px] border-double border-ink rounded-3xl p-8 md:p-12 text-center relative overflow-hidden" style="background:linear-gradient(180deg,#FFFDF7,#FFF3D6)">
+    <div class="absolute -top-10 -left-10 w-40 h-40 rounded-full bg-mint opacity-70"></div>
+    <div class="absolute -bottom-12 -right-8 w-48 h-48 rounded-full bg-[#FFE7E3] opacity-80"></div>
+    <div class="relative">
+      <div class="w-24 h-24 mx-auto" data-buhito></div>
+      <p class="font-display text-sm tracking-[.3em] text-tealD mt-2">CONTAKIDS · EDUCACIÓN ECONÓMICA Y FINANCIERA</p>
+      <h3 class="font-display text-3xl md:text-5xl font-extrabold mt-1">Certificado de participación</h3>
+      <p class="mt-4 text-ink/80">Se otorga a</p>
+      <p id="certNombre" class="font-display text-3xl md:text-4xl font-extrabold text-coral border-b-4 border-dotted border-ink/40 inline-block px-6 py-1">_______________________</p>
+      <p class="mt-4 max-w-2xl mx-auto text-sm md:text-base">por completar el taller <b>"Lógica Financiera y Ciudadanía Económica: de la partida doble al impacto social"</b>,
+        demostrando dominio en clasificación de cuentas, ecuación patrimonial, registro en partida doble, balance de comprobación
+        y análisis del impacto socioeconómico de la información financiera.</p>
+      <div class="flex flex-wrap justify-center gap-6 mt-6 text-sm font-bold">
+        <div class="px-4 py-2 rounded-2xl border-[3px] border-ink bg-white">⭐ XP obtenidos: <span id="certXP">0</span></div>
+        <div class="px-4 py-2 rounded-2xl border-[3px] border-ink bg-white">🎖️ Nivel: <span id="certNivel">—</span></div>
+        <div class="px-4 py-2 rounded-2xl border-[3px] border-ink bg-white">✅ Actividades: <span id="certActs">0/10</span></div>
+      </div>
+      <div class="flex justify-between items-end mt-8">
+        <div class="text-left">
+          <svg width="110" height="110" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" fill="#FFC145" stroke="#12263A" stroke-width="6"/>
+            <circle cx="60" cy="60" r="38" fill="#fff" stroke="#12263A" stroke-width="4" stroke-dasharray="6 6"/>
+            <text x="60" y="56" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="16" fill="#12263A">PARTIDA</text>
+            <text x="60" y="76" text-anchor="middle" font-family="'Baloo 2 Variable',cursive" font-size="16" fill="#12263A">DOBLE</text>
+          </svg>
+        </div>
+        <p class="text-sm">Fecha: <b id="certFecha">—</b></p>
+        <div class="text-right">
+          <p class="border-t-[3px] border-ink px-6 font-display font-extrabold">Docente responsable</p>
+          <p class="text-xs text-ink/70">Ciencias Económicas y Sociales</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= GLOSARIO ======================= -->
+<section id="glosario" class="py-12 border-t-4 border-dashed border-ink/30">
+  <h2 class="font-display text-3xl md:text-4xl font-extrabold">📚 Glosario de bolsillo</h2>
+  <p class="text-ink/75 mt-1">Las palabras clave del taller, explicadas como para contárselas a tu familia.</p>
+  <div id="glosarioBox" class="grid md:grid-cols-2 gap-3 mt-5"></div>
+</section>
+
+<footer class="mt-8 border-t-4 border-ink bg-ink text-cream">
+  <div class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-3 gap-6 text-sm">
+    <div>
+      <p class="font-display text-xl font-extrabold">Conta<span class="text-mustard">Kids</span></p>
+      <p class="opacity-80 mt-1">Taller de lógica financiera y ciudadanía económica para estudiantes de 12 a 14 años.</p>
+    </div>
+    <div>
+      <p class="font-display font-extrabold text-mustard">Nota didáctica</p>
+      <p class="opacity-80 mt-1">Los códigos del PUC mostrados son <b>referenciales y con fines pedagógicos</b> (Decreto 2650 de 1993 y marcos técnicos normativos vigentes en Colombia). Las cifras son simuladas.</p>
+    </div>
+    <div>
+      <p class="font-display font-extrabold text-mustard">Para el docente</p>
+      <p class="opacity-80 mt-1">Sugerencia: 4 sesiones de 45 min. Sesión 1 = Módulo 1 · Sesión 2 = Módulo 2 (trabajo en parejas) · Sesión 3 = Módulo 3 (4 grupos) · Sesión 4 = reto final, mapa mental y exposición.</p>
+    </div>
+  </div>
+</footer>
+</main>
+
+<!-- TOAST -->
+<div id="toastWrap" class="fixed bottom-4 right-4 z-[60] flex flex-col gap-2 items-end pointer-events-none"></div>
+
+<script>
+/* =========================================================
+   CONTAKIDS — Taller interactivo de contabilidad y ciudadanía
+   ========================================================= */
+const nf = new Intl.NumberFormat('es-CO');
+const money = v => '$' + nf.format(Math.round(v));
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+
+/* ---------- MASCOTA SVG ---------- */
+function buhitoSVG(){
+  return `<svg viewBox="0 0 200 210" class="w-full h-full" aria-hidden="true">
+    <ellipse cx="100" cy="196" rx="56" ry="10" fill="#12263A" opacity=".13"/>
+    <path d="M100 26 C58 26 42 64 42 106 C42 152 66 178 100 178 C134 178 158 152 158 106 C158 64 142 26 100 26Z" fill="#0FA3A3" stroke="#12263A" stroke-width="6"/>
+    <path d="M56 40 L44 14 L74 28 Z" fill="#0FA3A3" stroke="#12263A" stroke-width="6"/>
+    <path d="M144 40 L156 14 L126 28 Z" fill="#0FA3A3" stroke="#12263A" stroke-width="6"/>
+    <ellipse cx="100" cy="128" rx="40" ry="46" fill="#FFF8EC" stroke="#12263A" stroke-width="5"/>
+    <path d="M64 96 q36 26 72 0 v30 q-36 24 -72 0 Z" fill="#FFC145" stroke="#12263A" stroke-width="5"/>
+    <circle cx="80" cy="88" r="23" fill="#fff" stroke="#12263A" stroke-width="5"/>
+    <circle cx="120" cy="88" r="23" fill="#fff" stroke="#12263A" stroke-width="5"/>
+    <circle cx="84" cy="90" r="9" fill="#12263A"/><circle cx="116" cy="90" r="9" fill="#12263A"/>
+    <circle cx="87" cy="86" r="3" fill="#fff"/><circle cx="119" cy="86" r="3" fill="#fff"/>
+    <path d="M100 104 l-11 14 h22 Z" fill="#FF6B5B" stroke="#12263A" stroke-width="4"/>
+    <path d="M44 112 q-16 22 -6 44 q14 6 20 -8" fill="#0B7C7C" stroke="#12263A" stroke-width="5"/>
+    <path d="M156 112 q16 22 6 44 q-14 6 -20 -8" fill="#0B7C7C" stroke="#12263A" stroke-width="5"/>
+    <rect x="146" y="128" width="34" height="26" rx="5" fill="#7A5AF8" stroke="#12263A" stroke-width="4"/>
+    <rect x="152" y="134" width="22" height="8" rx="2" fill="#D8D2FF"/>
+    <rect x="20" y="130" width="30" height="24" rx="4" fill="#3DBE73" stroke="#12263A" stroke-width="4"/>
+  </svg>`;
+}
+$$('[data-buhito]').forEach(e=>e.innerHTML=buhitoSVG());
+
+/* ---------- ESTADO / GAMIFICACIÓN ---------- */
+const ACTS = ['inv','ecu','bal','reflex1','reglas','diario','bcomp','error','casos','mapa','quiz'];
+const ESTADO = { xp:0, hechos:{}, pistas:5 };
+const BADGES = [
+  {id:'inv', ic:'🧩', t:'Clasificador experto', d:'Ordenaste el Inventario Caótico'},
+  {id:'ecu', ic:'⚖️', t:'Guardián del equilibrio', d:'Dominaste la ecuación madre'},
+  {id:'bal', ic:'🎒', t:'Mi primera riqueza neta', d:'Construiste tu balance personal'},
+  {id:'reglas', ic:'🃏', t:'Señor del débito y crédito', d:'Conoces las reglas inmutables'},
+  {id:'diario', ic:'📘', t:'Contable de Arepatech', d:'Registraste las 7 transacciones'},
+  {id:'bcomp', ic:'🧾', t:'Auditor junior', d:'Tu balance de comprobación cuadró'},
+  {id:'error', ic:'🕵️', t:'Cazador de errores', d:'Analizaste el efecto dominó'},
+  {id:'casos', ic:'🌎', t:'Analista del ecosistema', d:'Exploraste los 4 casos'},
+  {id:'mapa', ic:'🧠', t:'Cartógrafo de decisiones', d:'Completaste el mapa mental'},
+  {id:'quiz', ic:'🏆', t:'Ciudadano económico', d:'Superaste el reto final'}
+];
+function nivel(xp){
+  if(xp>=480) return 'Ciudadano económico 🌟';
+  if(xp>=320) return 'Analista junior 📊';
+  if(xp>=160) return 'Auxiliar contable ✏️';
+  return 'Aprendiz de cuentas 🐣';
+}
+function addXP(n, msg){
+  ESTADO.xp += n;
+  toast(`+${n} XP · ${msg}`, 'xp');
+  pintarEstado();
+}
+function marcar(id){
+  if(ESTADO.hechos[id]) return;
+  ESTADO.hechos[id]=true;
+  const b = BADGES.find(x=>x.id===id);
+  if(b) toast(`🏅 Insignia desbloqueada: ${b.t}`, 'badge');
+  pintarEstado();
+}
+function pintarEstado(){
+  $('#xpNum').textContent = ESTADO.xp;
+  $('#nivelTxt').textContent = nivel(ESTADO.xp);
+  const n = ACTS.filter(a=>ESTADO.hechos[a]).length;
+  const pct = Math.round(n/ACTS.length*100);
+  $('#progBar').style.width = pct+'%';
+  $('#progBar2').style.width = pct+'%';
+  $('#certXP').textContent = ESTADO.xp;
+  $('#certNivel').textContent = nivel(ESTADO.xp);
+  $('#certActs').textContent = n+'/'+ACTS.length;
+  $('#badges').innerHTML = BADGES.map(b=>{
+    const on = ESTADO.hechos[b.id];
+    return `<div class="flex items-center gap-2 px-3 py-2 rounded-2xl border-[3px] border-ink ${on?'bg-white':'bg-white/40 opacity-55 grayscale'}">
+      <span class="text-2xl">${b.ic}</span>
+      <div><p class="font-display font-extrabold text-sm leading-none">${b.t}</p><p class="text-[11px] text-ink/70">${b.d}</p></div>
+      ${on?'<span class="ml-1 text-leaf text-lg">✔</span>':''}
+    </div>`;
+  }).join('');
+  const m1 = ['inv','ecu','bal','reflex1'].filter(a=>ESTADO.hechos[a]).length;
+  const m2 = ['reglas','diario','bcomp','error'].filter(a=>ESTADO.hechos[a]).length;
+  const m3 = ['casos','mapa'].filter(a=>ESTADO.hechos[a]).length;
+  $('#st-m1').textContent = 'Estado: '+(m1===4?'✅ completo':m1+'/4 actividades');
+  $('#st-m2').textContent = 'Estado: '+(m2===4?'✅ completo':m2+'/4 actividades');
+  $('#st-m3').textContent = 'Estado: '+(m3===2?'✅ completo':m3+'/2 actividades');
+}
+function toast(txt, tipo='info'){
+  const colores = {xp:'bg-leaf text-white', badge:'bg-mustard text-ink', ok:'bg-teal text-white', bad:'bg-coral text-white', info:'bg-white text-ink'};
+  const el = document.createElement('div');
+  el.className = `toast-in pointer-events-auto px-4 py-2 rounded-2xl border-[3px] border-ink shadow-[3px_3px_0_#12263A] font-bold text-sm max-w-xs ${colores[tipo]||colores.info}`;
+  el.textContent = txt;
+  $('#toastWrap').appendChild(el);
+  setTimeout(()=>{ el.style.transition='all .4s'; el.style.opacity='0'; el.style.transform='translateY(20px)'; setTimeout(()=>el.remove(),400); }, 3200);
+}
+
+/* ---------- NAV ---------- */
+$('#btnMenu').addEventListener('click', ()=> $('#menuMovil').classList.toggle('hidden'));
+$$('#menuMovil a').forEach(a=>a.addEventListener('click',()=>$('#menuMovil').classList.add('hidden')));
+const secciones = ['inicio','m1','m2','m3','reto','diploma'].map(id=>document.getElementById(id));
+window.addEventListener('scroll', ()=>{
+  let actual = 'inicio';
+  secciones.forEach(s=>{ if(s && s.getBoundingClientRect().top <= 140) actual = s.id; });
+  $$('[data-nav]').forEach(a=>a.classList.toggle('active', a.dataset.nav===actual));
+});
+
+/* =========================================================
+   MÓDULO 1 · LADRILLOS CONCEPTUALES
+   ========================================================= */
+const LADRILLOS = [
+  {t:'ACTIVO', c:'#E4F7F1', ic:'🎒', d:'Todo lo que la persona o empresa <b>tiene</b> y que puede convertirse en dinero: efectivo, inventario, equipos, y también los <b>derechos</b> (facturas por cobrar).', ex:'Ej.: la plancha de arepas, la moto de domicilios, tu celular.'},
+  {t:'PASIVO', c:'#FFE7E3', ic:'📮', d:'Todas las <b>deudas y obligaciones</b> con terceros. Es dinero que ya no es tuyo aunque pase por tus manos.', ex:'Ej.: préstamo bancario, IVA por pagar, lo que le debes a un amigo.'},
+  {t:'PATRIMONIO', c:'#EFEAFF', ic:'💜', d:'Lo que <b>queda para los dueños</b> después de pagar todas las deudas: Activo − Pasivo. Incluye aportes, reservas y ganancias acumuladas.', ex:'Ej.: el capital que pusieron los socios.'},
+  {t:'INGRESO', c:'#FFF3D6', ic:'📈', d:'Entradas de dinero generadas por la <b>actividad del negocio</b>. Aumentan el patrimonio.', ex:'Ej.: vender 200 arepas, cobrar un diseño.'},
+  {t:'GASTO', c:'#F0F0F5', ic:'📉', d:'Consumos necesarios para operar. <b>Disminuyen</b> el patrimonio, pero no son "malos": son el combustible.', ex:'Ej.: arriendo, sueldos, servicios, publicidad.'}
+];
+$('#ladrillos').innerHTML = LADRILLOS.map((l,i)=>`
+  <div class="flip cursor-pointer" data-i="${i}" style="min-height:190px">
+    <div class="flip-inner w-full h-full" style="min-height:190px">
+      <div class="flip-face w-full h-full rounded-2xl border-[3px] border-ink p-4 flex flex-col justify-center" style="background:${l.c};min-height:190px">
+        <div class="text-3xl">${l.ic}</div>
+        <p class="font-display font-extrabold text-xl">${l.t}</p>
+        <p class="text-xs text-ink/70 mt-1">Toca para girar 🔄</p>
+      </div>
+      <div class="flip-face flip-back rounded-2xl border-[3px] border-ink p-4 bg-ink text-cream overflow-hidden" style="min-height:190px">
+        <p class="font-display font-extrabold text-lg">${l.t}</p>
+        <p class="text-sm mt-1 leading-snug">${l.d}</p>
+        <p class="text-xs mt-2 text-mustard">${l.ex}</p>
+      </div>
+    </div>
+  </div>`).join('');
+let flipsAbiertos = 0;
+$$('#ladrillos .flip').forEach(f=>f.addEventListener('click',()=>{
+  const wasOpen = f.classList.contains('open');
+  f.classList.toggle('open');
+  if(!wasOpen){ flipsAbiertos++; if(flipsAbiertos>=5){ marcar('reglas'); addXP(20,'Conoces los 5 ladrillos'); } }
+}));
+
+/* =========================================================
+   MÓDULO 1 · INVENTARIO CAÓTICO (40 elementos)
+   ========================================================= */
+const ITEMS = [
+ {n:'Computador portátil del negocio',c:'A',puc:'1528',tip:'Equipo que la empresa usará por varios años.'},
+ {n:'Dinero en la caja registradora',c:'A',puc:'1105',tip:'Efectivo disponible: el activo más líquido.'},
+ {n:'Cuenta de ahorros del negocio',c:'A',puc:'1110',tip:'Dinero en el banco, listo para usarse.'},
+ {n:'Facturas por cobrar a clientes',c:'A',puc:'1305',tip:'Es un derecho: aunque no esté en caja, ya es tuyo.'},
+ {n:'Bolsas de harina e insumos',c:'A',puc:'1435',tip:'Inventario que se convertirá en dinero al venderse.'},
+ {n:'Plancha industrial para arepas',c:'A',puc:'1535',tip:'Maquinaria: produce ingresos durante años.'},
+ {n:'Motocicleta de domicilios',c:'A',puc:'1540',tip:'Vehículo de la empresa.'},
+ {n:'Marca registrada "ArepitaFeliz"',c:'A',puc:'1615',tip:'Intangible: vale dinero aunque no se toque.'},
+ {n:'Mi bicicleta personal',c:'A',puc:'1540',tip:'Un bien de tu propiedad.'},
+ {n:'Celular con el que estudio y diseño',c:'A',puc:'1528',tip:'Herramienta que genera valor.'},
+ {n:'Préstamo bancario por pagar',c:'P',puc:'2105',tip:'Obligación financiera con el banco.'},
+ {n:'Deuda con la tarjeta de crédito',c:'P',puc:'2105',tip:'Dinero prestado que debes devolver.'},
+ {n:'Factura pendiente al proveedor de harina',c:'P',puc:'2205',tip:'Cuenta por pagar a proveedores.'},
+ {n:'IVA por declarar y pagar',c:'P',puc:'2408',tip:'Dinero del Estado que pasó por tus manos.'},
+ {n:'Sueldos del mes pendientes de pago',c:'P',puc:'2335',tip:'Obligación laboral ya causada.'},
+ {n:'Dinero que le debo a un amigo',c:'P',puc:'2335',tip:'Deuda con terceros: pasivo puro.'},
+ {n:'Recibo de energía y agua sin pagar',c:'P',puc:'2335',tip:'Gasto ya causado pero aún no pagado.'},
+ {n:'Anticipo de un cliente (pedido pendiente)',c:'P',puc:'2705',tip:'¡Trampa! Entró dinero, pero tienes la obligación de entregar el pedido.'},
+ {n:'Hipoteca del local comercial',c:'P',puc:'2105',tip:'Deuda de largo plazo con garantía.'},
+ {n:'Impuesto de renta por pagar',c:'P',puc:'2404',tip:'Obligación con el Estado.'},
+ {n:'Capital aportado por los socios',c:'PT',puc:'3105',tip:'Lo que pusieron los dueños: patrimonio.'},
+ {n:'Mis ahorros invertidos en el negocio',c:'PT',puc:'3105',tip:'Aporte propio, no hay que devolverlo.'},
+ {n:'Ganancias de años anteriores sin repartir',c:'PT',puc:'3605',tip:'Utilidades acumuladas.'},
+ {n:'Reserva legal de la empresa',c:'PT',puc:'3305',tip:'Ahorro obligatorio que protege a la empresa.'},
+ {n:'Aporte de mis papás a mi emprendimiento',c:'PT',puc:'3105',tip:'Aporte de capital, no es un préstamo.'},
+ {n:'Pérdida acumulada del año pasado',c:'PT',puc:'3610',tip:'Cuenta patrimonaria que RESTA al patrimonio.'},
+ {n:'Venta de 200 arepas en la feria',c:'I',puc:'4135',tip:'Ingreso operativo por ventas.'},
+ {n:'Cobro por hacer un diseño gráfico',c:'I',puc:'4135',tip:'Ingreso por prestación de servicios.'},
+ {n:'Arriendo que me pagan por una bodega',c:'I',puc:'4205',tip:'Ingreso no operativo.'},
+ {n:'Comisión por vender productos de un amigo',c:'I',puc:'4135',tip:'Ingreso por comisiones.'},
+ {n:'Intereses que me pagó el banco por mi ahorro',c:'I',puc:'4210',tip:'Rendimiento financiero: ingreso.'},
+ {n:'Premio en un concurso de emprendimiento',c:'I',puc:'4218',tip:'Ingreso extraordinario.'},
+ {n:'Venta de mi bicicleta vieja',c:'I',puc:'4218',tip:'En un negocio, la venta de activos fijos genera ingreso ocasional.'},
+ {n:'Pago del arriendo del local',c:'G',puc:'5140',tip:'Gasto de funcionamiento.'},
+ {n:'Sueldos de la empleada',c:'G',puc:'5105',tip:'Gasto de personal.'},
+ {n:'Recibo de energía y agua del negocio',c:'G',puc:'5155',tip:'Servicios públicos: gasto del periodo.'},
+ {n:'Publicidad en redes sociales',c:'G',puc:'5165',tip:'Gasto para vender más.'},
+ {n:'Viáticos y pasajes de un viaje de negocios',c:'G',puc:'5195',tip:'Gasto de viaje: se consume en el periodo.'},
+ {n:'Intereses pagados por el préstamo',c:'G',puc:'5305',tip:'Gasto financiero.'},
+ {n:'Papelería y marcadores gastados del mes',c:'G',puc:'5195',tip:'Ya se consumió: es gasto, no activo.'}
+];
+const NOMBRES_CAT = {A:'ACTIVO',P:'PASIVO',PT:'PATRIMONIO',I:'INGRESO',G:'GASTO'};
+let invSelected = null;
+const invTray = $('#trayInv');
+
+function renderInv(){
+  invTray.innerHTML='';
+  ITEMS.forEach((it,i)=>{
+    const b = document.createElement('button');
+    b.className='chip px-3 py-2 text-left text-xs md:text-sm font-semibold leading-tight pop';
+    b.dataset.id=i; b.draggable=true;
+    b.innerHTML = `<span class="block">${it.n}</span><span class="block text-[10px] text-ink/55 font-bold mt-0.5">PUC ${it.puc}</span>`;
+    b.title='Arrastra a una canasta o haz clic para seleccionar';
+    b.addEventListener('click', ()=>toggleSel(i));
+    b.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', i); invSelected=i; b.classList.add('sel'); });
+    invTray.appendChild(b);
+  });
+  $$('.bin-body').forEach(bb=>bb.innerHTML='');
+  $('#invCount').textContent='0'; $('#invOk').textContent='0';
+  $('#invFeedback').classList.add('hidden');
+}
+function toggleSel(i){
+  const chip = document.querySelector(`.chip[data-id="${i}"]`);
+  if(!chip) return;
+  if(chip.closest('.bin-body')){ // devolver a la bandeja
+    invTray.appendChild(chip); chip.classList.remove('ok','bad','sel'); actualizarConteo(); return;
+  }
+  $$('.chip.sel').forEach(c=>c.classList.remove('sel'));
+  invSelected = i; chip.classList.add('sel');
+}
+function colocarEn(chipId, cat){
+  const chip = document.querySelector(`.chip[data-id="${chipId}"]`);
+  const bin = document.querySelector(`.bin[data-cat="${cat}"] .bin-body`);
+  if(!chip||!bin) return;
+  chip.classList.remove('sel','ok','bad');
+  bin.appendChild(chip);
+  invSelected=null; actualizarConteo();
+}
+function actualizarConteo(){
+  const placed = $$('.bin-body .chip').length;
+  $('#invCount').textContent = placed;
+}
+$$('.bin').forEach(bin=>{
+  bin.addEventListener('dragover', e=>{e.preventDefault(); bin.classList.add('over');});
+  bin.addEventListener('dragleave', ()=> bin.classList.remove('over'));
+  bin.addEventListener('drop', e=>{
+    e.preventDefault(); bin.classList.remove('over');
+    const id = e.dataTransfer.getData('text/plain');
+    if(id!=='') colocarEn(id, bin.dataset.cat);
+  });
+  bin.addEventListener('click', e=>{
+    if(e.target.closest('.chip')) return;
+    if(invSelected!==null) colocarEn(invSelected, bin.dataset.cat);
+  });
+});
+$('#btnResetInv').addEventListener('click', ()=>{ renderInv(); toast('Inventario reiniciado. ¡A clasificar!','info'); });
+$('#btnPistaInv').addEventListener('click', ()=>{
+  if(ESTADO.pistas<=0){ toast('Ya usaste todas las pistas 🔍','bad'); return; }
+  const pendientes = ITEMS.map((it,i)=>i).filter(i=>!document.querySelector(`.bin-body .chip[data-id="${i}"]`));
+  if(!pendientes.length){ toast('¡Todo clasificado! Revisa tu trabajo ✅','ok'); return; }
+  const i = pendientes[Math.floor(Math.random()*pendientes.length)];
+  ESTADO.pistas--; $('#pistasLeft').textContent = ESTADO.pistas;
+  toast(`💡 "${ITEMS[i].n}" es un ${NOMBRES_CAT[ITEMS[i].c]}: ${ITEMS[i].tip}`,'info');
+});
+$('#btnRevisarInv').addEventListener('click', ()=>{
+  let ok=0, mal=0, sin=0;
+  ITEMS.forEach((it,i)=>{
+    const chip = document.querySelector(`.chip[data-id="${i}"]`);
+    const bin = chip.closest('.bin');
+    chip.classList.remove('ok','bad');
+    if(!bin){ sin++; chip.classList.add('shake'); setTimeout(()=>chip.classList.remove('shake'),500); return; }
+    if(bin.dataset.cat===it.c){ ok++; chip.classList.add('ok'); }
+    else { mal++; chip.classList.add('bad'); chip.title = `Correcto: ${NOMBRES_CAT[it.c]} — ${it.tip}`;
+           chip.classList.add('shake'); setTimeout(()=>chip.classList.remove('shake'),500); }
+  });
+  $('#invOk').textContent = ok;
+  const fb = $('#invFeedback'); fb.classList.remove('hidden');
+  const pct = Math.round(ok/40*100);
+  fb.className = `mt-4 p-4 rounded-2xl border-[3px] border-ink ${pct>=90?'bg-mint':pct>=60?'bg-[#FFF3D6]':'bg-[#FFE7E3]'}`;
+  fb.innerHTML = `<p class="font-display font-extrabold text-xl">${pct>=90?'🎉 ¡Excelente trabajo de analista!':pct>=60?'👍 Vas bien, revisa las rojas':'🔎 Aún hay desorden: revisemos juntos'}</p>
+   <p class="text-sm mt-1">Aciertos: <b>${ok}</b> · Errores: <b>${mal}</b> · Sin clasificar: <b>${sin}</b>. Pasa el cursor (o toca) las fichas rojas para ver la explicación.</p>
+   <p class="text-xs mt-2 text-ink/70">Recuerda: un elemento mal clasificado <b>distorsiona toda la ecuación patrimonial</b>. La contabilidad no admite "más o menos".</p>`;
+  if(pct>=85 && sin===0){ marcar('inv'); addXP(60,'Inventario Caótico superado'); }
+});
+renderInv();
+
+/* =========================================================
+   MÓDULO 1 · BALANZA VIVA
+   ========================================================= */
+let ecuA = 8000000, ecuP = 3000000;
+function pintarEcu(){
+  const pt = ecuA - ecuP;
+  $('#sldA').value = ecuA; $('#sldP').value = ecuP;
+  $('#lblA').textContent = money(ecuA); $('#lblP').textContent = money(ecuP);
+  $('#lblPT').textContent = money(pt);
+  $('#lblPT').className = pt>=0 ? 'text-plum' : 'text-coral';
+  const total = Math.max(ecuA,1);
+  $('#barP').style.width = Math.min(100, ecuP/total*100)+'%';
+  $('#barPT').style.width = Math.max(0, Math.min(100, pt/total*100))+'%';
+  const m = $('#ecuMsg');
+  if(pt<0){ m.className='mt-3 text-sm font-bold p-3 rounded-xl bg-[#FFE7E3] border-2 border-ink';
+    m.innerHTML='🚨 <b>¡Alerta roja!</b> Tu patrimonio es negativo: debes más de lo que tienes. La ecuación sigue cumpliendo (A = P + PT), pero PT es negativo.'; }
+  else if(ecuP/Math.max(ecuA,1) > .6){ m.className='mt-3 text-sm font-bold p-3 rounded-xl bg-[#FFF3D6] border-2 border-ink';
+    m.innerHTML='⚠️ Más del 60% de tus activos son financiados con deuda. Un banco diría que tienes <b>alto endeudamiento</b>.'; }
+  else { m.className='mt-3 text-sm font-bold p-3 rounded-xl bg-mint border-2 border-ink';
+    m.innerHTML=`✅ ${money(ecuA)} = ${money(ecuP)} + ${money(pt)}. La balanza está en equilibrio y tu riqueza neta es saludable.`; }
+  if(ecuA>0 && !ESTADO.hechos.ecu){ marcar('ecu'); addXP(40,'Entendiste la ecuación madre'); }
+}
+$('#sldA').addEventListener('input', e=>{ ecuA=+e.target.value; pintarEcu(); });
+$('#sldP').addEventListener('input', e=>{ ecuP=+e.target.value; pintarEcu(); });
+$$('[data-ev]').forEach(b=>b.addEventListener('click',()=>{
+  const ev = b.dataset.ev;
+  const log = $('#evLog');
+  if(ev==='prestamo'){ ecuA+=2000000; ecuP+=2000000; log.innerHTML='🏦 Entró dinero a Caja (Activo +2.000.000) y nació una obligación con el banco (Pasivo +2.000.000). <b>El patrimonio NO cambió</b>.'; }
+  if(ev==='pago'){ if(ecuA<1000000||ecuP<1000000){toast('No tienes suficiente efectivo o deuda','bad');return;} ecuA-=1000000; ecuP-=1000000; log.innerHTML='💸 Sale efectivo (Activo −1.000.000) y se cancela deuda (Pasivo −1.000.000). <b>El patrimonio sigue igual</b>: pagar deudas no te hace más pobre, te hace más libre.'; }
+  if(ev==='aporte'){ ecuA+=1000000; log.innerHTML='🤝 El dueño aporta $1.000.000: Activo +1.000.000 y Patrimonio +1.000.000. Aquí sí crece la riqueza neta.'; ecuP=ecuP; ESTADO._aporte=true; }
+  if(ev==='credito'){ ecuA+=1500000; ecuP+=1500000; log.innerHTML='📦 Llega mercancía (Activo +1.500.000) y queda la obligación con el proveedor (Pasivo +1.500.000). Doble efecto, mismo valor.'; }
+  if(ev==='aporte'){ /* patrimonio derivado */ }
+  pintarEcu();
+  // el aporte del dueño sube patrimonio => se refleja aumentando A sin aumentar P
+}));
+pintarEcu();
+
+/* =========================================================
+   MÓDULO 1 · PRODUCTO 1: BALANCE PERSONAL
+   ========================================================= */
+const CATS_BAL = [['A','Activo (lo que tengo)'],['P','Pasivo (lo que debo)']];
+let balRowId = 0;
+const EJEMPLO_BAL = [
+  {n:'Mi bicicleta', c:'A', v:450000},
+  {n:'Celular', c:'A', v:700000},
+  {n:'Ahorros en la alcancía', c:'A', v:120000},
+  {n:'Deuda con un amigo', c:'P', v:50000},
+  {n:'Cuotas del celular por pagar', c:'P', v:300000}
+];
+function addBalRow(datos){
+  const d = datos || {n:'', c:'A', v:0};
+  const id = 'br'+(balRowId++);
+  const div = document.createElement('div');
+  div.className='grid grid-cols-12 gap-2 items-center'; div.dataset.id=id;
+  div.innerHTML = `
+    <input class="col-span-5 border-[3px] border-ink rounded-xl px-2 py-1.5 text-sm bg-white" placeholder="Nombre del elemento" value="${d.n}">
+    <select class="col-span-3 border-[3px] border-ink rounded-xl px-2 py-1.5 text-sm bg-white font-bold">
+      <option value="A" ${d.c==='A'?'selected':''}>Activo (tengo)</option>
+      <option value="P" ${d.c==='P'?'selected':''}>Pasivo (debo)</option>
+    </select>
+    <input type="number" min="0" step="1000" class="col-span-3 border-[3px] border-ink rounded-xl px-2 py-1.5 text-sm bg-white" placeholder="Valor $" value="${d.v||''}">
+    <button class="col-span-1 btn bg-coral text-white px-2 py-1 text-sm" title="Eliminar">✕</button>`;
+  div.querySelector('button').addEventListener('click',()=>{div.remove();});
+  $('#balRows').appendChild(div);
+}
+EJEMPLO_BAL.forEach(addBalRow);
+$('#btnAddRow').addEventListener('click', ()=>addBalRow());
+$('#btnCalcBal').addEventListener('click', ()=>{
+  let a=0,p=0,lista=[];
+  $$('#balRows > div').forEach(r=>{
+    const n = r.querySelector('input').value.trim();
+    const c = r.querySelector('select').value;
+    const v = +r.querySelectorAll('input')[1].value || 0;
+    if(!n || v<=0) return;
+    lista.push({n,c,v});
+    if(c==='A') a+=v; else p+=v;
+  });
+  const pt = a-p;
+  const box = $('#balResult'); box.classList.remove('hidden');
+  const sano = pt>0 && p/Math.max(a,1) <= .5;
+  box.className = `mt-4 p-4 rounded-2xl border-[3px] border-ink ${pt<0?'bg-[#FFE7E3]':sano?'bg-mint':'bg-[#FFF3D6]'}`;
+  box.innerHTML = `
+    <p class="font-display font-extrabold text-xl">📋 Mi Balance Personal Inicial</p>
+    <table class="tbl w-full text-sm mt-2 bg-white">
+      <thead><tr class="bg-mint"><th class="text-left">Elemento</th><th>Tipo</th><th class="text-right">Valor</th></tr></thead>
+      <tbody>${lista.map(x=>`<tr><td class="text-left">${x.n}</td><td class="text-center ${x.c==='A'?'text-tealD':'text-coral'} font-bold">${x.c==='A'?'ACTIVO':'PASIVO'}</td><td class="text-right">${money(x.v)}</td></tr>`).join('')||'<tr><td colspan="3" class="text-center text-ink/60">Agrega al menos un elemento con valor</td></tr>'}</tbody>
+    </table>
+    <div class="grid sm:grid-cols-3 gap-3 mt-3 text-center">
+      <div class="p-3 rounded-xl border-[3px] border-ink bg-white"><p class="text-xs font-bold text-ink/70">TOTAL ACTIVO</p><p class="font-display text-xl font-extrabold text-teal">${money(a)}</p></div>
+      <div class="p-3 rounded-xl border-[3px] border-ink bg-white"><p class="text-xs font-bold text-ink/70">TOTAL PASIVO</p><p class="font-display text-xl font-extrabold text-coral">${money(p)}</p></div>
+      <div class="p-3 rounded-xl border-[3px] border-ink bg-mustard"><p class="text-xs font-bold">MI PATRIMONIO</p><p class="font-display text-xl font-extrabold">${money(pt)}</p></div>
+    </div>
+    <p class="text-sm mt-3 font-bold">${pt<0?'🚨 Tu patrimonio es negativo: tus deudas superan tus bienes. Es momento de un plan de pago.'
+      : sano?`🌟 ¡Felicitaciones! Tu riqueza neta es ${money(pt)} y tu nivel de deuda es bajo. Eso es ser un ciudadano económicamente responsable.`
+      : `👍 Tu riqueza neta es ${money(pt)}, pero más de la mitad de tus bienes están financiados con deuda. Vigila tu capacidad de pago.`}</p>
+    <p class="text-xs mt-2 text-ink/70">Ecuación verificada: ${money(a)} = ${money(p)} + ${money(pt)} ✔</p>`;
+  if(lista.length>=3){ marcar('bal'); addXP(50,'Balance personal construido'); }
+});
+$('#btnPrintBal').addEventListener('click', ()=>window.print());
+
+$('#btnReflex1').addEventListener('click', ()=>{
+  const t = $('#reflex1').value.trim();
+  if(t.length<25){ toast('Escribe al menos 2 ideas completas ✍️','bad'); return; }
+  marcar('reflex1'); addXP(20,'Reflexión guardada');
+  toast('Reflexión guardada. ¡Buen pensamiento crítico!','ok');
+});
+
+/* =========================================================
+   MÓDULO 2 · REGLAS DÉBITO / CRÉDITO
+   ========================================================= */
+const REGLAS = [
+  {t:'ACTIVO (1)', s:'Aumenta por el DÉBITO (izquierda) · Disminuye por el CRÉDITO', c:'#E4F7F1', ic:'🎒', ex:'Si compras una plancha, debitas Maquinaria; si la pagas con efectivo, acreditas Caja.'},
+  {t:'PASIVO (2)', s:'Aumenta por el CRÉDITO (derecha) · Disminuye por el DÉBITO', c:'#FFE7E3', ic:'📮', ex:'Cuando te prestan, acreditas Obligaciones financieras; cuando pagas, la debitas.'},
+  {t:'PATRIMONIO (3)', s:'Aumenta por el CRÉDITO · Disminuye por el DÉBITO', c:'#EFEAFF', ic:'💜', ex:'El aporte de los socios se acredita en Capital social.'},
+  {t:'INGRESO (4)', s:'Aumenta por el CRÉDITO · Disminuye por el DÉBITO', c:'#FFF3D6', ic:'📈', ex:'Al vender, acreditas Ventas (aunque el dinero entre por el débito de Caja).'},
+  {t:'GASTO (5)', s:'Aumenta por el DÉBITO · Disminuye por el CRÉDITO', c:'#F0F0F5', ic:'📉', ex:'Pagar el arriendo: debitas Gasto arriendo y acreditas Caja.'}
+];
+$('#reglas').innerHTML = REGLAS.map(r=>`
+  <div class="rounded-2xl border-[3px] border-ink p-3" style="background:${r.c}">
+    <p class="font-display font-extrabold text-lg">${r.ic} ${r.t}</p>
+    <p class="text-xs font-bold mt-1">${r.s}</p>
+    <p class="text-xs mt-1 text-ink/75">${r.ex}</p>
+  </div>`).join('');
+
+/* =========================================================
+   MÓDULO 2 · TRANSACCIONES Y LIBROS
+   ========================================================= */
+const CUENTAS = {
+ '1105':{n:'Caja (efectivo)',t:'A'},
+ '1435':{n:'Inventarios (mercancía)',t:'A'},
+ '1535':{n:'Maquinaria y equipo',t:'A'},
+ '1305':{n:'Clientes (por cobrar)',t:'A'},
+ '2205':{n:'Proveedores',t:'P'},
+ '2105':{n:'Obligaciones financieras',t:'P'},
+ '2335':{n:'Costos y gastos por pagar',t:'P'},
+ '3105':{n:'Capital social',t:'PT'},
+ '4135':{n:'Ventas (ingresos)',t:'I'},
+ '5105':{n:'Gasto: sueldos',t:'G'},
+ '5140':{n:'Gasto: arriendo',t:'G'},
+ '5155':{n:'Gasto: servicios públicos',t:'G'},
+ '5305':{n:'Gasto: intereses',t:'G'}
+};
+const TRANS = [
+ {d:'Los socios aportan $5.000.000 en efectivo para crear Arepatech.', p:'Entra dinero a Caja (activo ↑ = débito) y los dueños aumentan su participación (patrimonio ↑ = crédito).',
+  l:[{c:'1105',s:'D',v:5000000},{c:'3105',s:'C',v:5000000}]},
+ {d:'Compran una plancha industrial de $2.000.000: pagan $1.000.000 en efectivo y quedan debiendo $1.000.000 al proveedor.', p:'La máquina entra completa como activo (débito). Sale efectivo (crédito) y nace una deuda con proveedores (crédito).',
+  l:[{c:'1535',s:'D',v:2000000},{c:'1105',s:'C',v:1000000},{c:'2205',s:'C',v:1000000}]},
+ {d:'Compran harina e ingredientes por $800.000 al contado.', p:'Sube el inventario (activo ↑ débito) y baja la caja (activo ↓ crédito).',
+  l:[{c:'1435',s:'D',v:800000},{c:'1105',s:'C',v:800000}]},
+ {d:'Venden arepas en la feria por $1.200.000 y reciben el dinero en efectivo.', p:'Entra efectivo (débito) y se reconoce el ingreso (crédito).',
+  l:[{c:'1105',s:'D',v:1200000},{c:'4135',s:'C',v:1200000}]},
+ {d:'Pagan el arriendo del local: $600.000 en efectivo.', p:'El arriendo es un gasto del mes (débito) y sale dinero de caja (crédito).',
+  l:[{c:'5140',s:'D',v:600000},{c:'1105',s:'C',v:600000}]},
+ {d:'Pagan los sueldos de la empleada: $700.000 en efectivo.', p:'Gasto de personal (débito) contra salida de caja (crédito).',
+  l:[{c:'5105',s:'D',v:700000},{c:'1105',s:'C',v:700000}]},
+ {d:'Le pagan al proveedor la deuda de la plancha: $1.000.000 en efectivo.', p:'La deuda disminuye (pasivo ↓ = débito) y sale efectivo (activo ↓ = crédito).',
+  l:[{c:'2205',s:'D',v:1000000},{c:'1105',s:'C',v:1000000}]}
+];
+const registrado = {};   // index -> array de {c,s,v}
+
+function renderTrans(){
+  const experto = $('#modoExperto').checked;
+  $('#transList').innerHTML = TRANS.map((t,i)=>{
+    const hecho = registrado[i];
+    return `<div class="rounded-2xl border-[3px] border-ink p-4 ${hecho?'bg-mint':'bg-cream'}" data-tr="${i}">
+      <div class="flex flex-wrap gap-2 items-start">
+        <span class="btn ${hecho?'bg-leaf text-white':'bg-ink text-white'} px-3 py-1 text-xs">${hecho?'✔ Registrada':'Op. '+(i+1)}</span>
+        <p class="font-bold flex-1 min-w-[220px]">${t.d}</p>
+        <button class="btn bg-white px-3 py-1 text-xs" data-pista="${i}">💡 Pista</button>
+      </div>
+      <p class="text-xs text-ink/70 mt-1 hidden" data-tip="${i}">${t.p}</p>
+      <div class="grid md:grid-cols-${Math.min(3,t.l.length)} gap-3 mt-3">
+        ${t.l.map((ln,j)=>`
+          <div class="p-3 rounded-xl border-2 border-ink bg-white" data-line="${i}-${j}">
+            <p class="text-[11px] font-extrabold text-ink/60">MOVIMIENTO ${j+1}</p>
+            <select class="w-full mt-1 border-2 border-ink rounded-lg px-2 py-1 text-xs bg-white selC" ${hecho?'disabled':''}>
+              <option value="">-- Elige la cuenta --</option>
+              ${Object.entries(CUENTAS).map(([k,v])=>`<option value="${k}" ${hecho&&hecho[j]&&hecho[j].c===k?'selected':''}>${k} · ${v.n}</option>`).join('')}
+            </select>
+            <div class="flex gap-2 mt-2">
+              <label class="flex-1 text-xs font-bold flex items-center gap-1"><input type="radio" name="s${i}-${j}" value="D" class="accent-teal" ${hecho&&hecho[j]&&hecho[j].s==='D'?'checked':''} ${hecho?'disabled':''}> DÉBITO</label>
+              <label class="flex-1 text-xs font-bold flex items-center gap-1"><input type="radio" name="s${i}-${j}" value="C" class="accent-coral" ${hecho&&hecho[j]&&hecho[j].s==='C'?'checked':''} ${hecho?'disabled':''}> CRÉDITO</label>
+            </div>
+            <input type="number" step="50000" class="w-full mt-2 border-2 border-ink rounded-lg px-2 py-1 text-xs bg-white valC" placeholder="${experto?'Escribe el valor':'Valor (ya dado)'}" ${experto&&!hecho?'':'readonly'} value="${hecho?hecho[j].v:(experto?'':ln.v)}">
+            <p class="text-[11px] mt-1 font-bold" data-fb="${i}-${j}"></p>
+          </div>`).join('')}
+      </div>
+      <div class="flex flex-wrap gap-2 mt-3">
+        ${hecho?`<button class="btn bg-white px-4 py-1.5 text-xs" data-undo="${i}">↺ Deshacer</button>`
+               :`<button class="btn bg-teal text-white px-4 py-1.5 text-xs" data-check="${i}">✅ Validar registro</button>`}
+      </div>
+    </div>`;
+  }).join('');
+
+  $$('[data-pista]').forEach(b=>b.addEventListener('click',()=>{
+    const t = $(`[data-tip="${b.dataset.pista}"]`); t.classList.toggle('hidden');
+  }));
+  $$('[data-check]').forEach(b=>b.addEventListener('click',()=>validarTrans(+b.dataset.check)));
+  $$('[data-undo]').forEach(b=>b.addEventListener('click',()=>{ delete registrado[+b.dataset.undo]; renderTrans(); renderLibros(); }));
+}
+function validarTrans(i){
+  const t = TRANS[i];
+  const esperado = t.l.map(x=>`${x.c}|${x.s}|${x.v}`);
+  const mio = [];
+  let completo = true;
+  t.l.forEach((ln,j)=>{
+    const card = $(`[data-line="${i}-${j}"]`);
+    const c = card.querySelector('.selC').value;
+    const sEl = card.querySelector(`input[name="s${i}-${j}"]:checked`);
+    const s = sEl ? sEl.value : '';
+    const v = +card.querySelector('.valC').value || 0;
+    const fb = card.querySelector(`[data-fb="${i}-${j}"]`);
+    if(!c||!s||!v){ completo=false; fb.textContent='⚠️ Completa cuenta, lado y valor.'; fb.className='text-[11px] mt-1 font-bold text-coral'; return; }
+    mio.push({c,s,v});
+    const okLinea = esperado.includes(`${c}|${s}|${v}`);
+    fb.textContent = okLinea ? '✔ Correcto' : '✘ Revisa cuenta/lado/valor';
+    fb.className = 'text-[11px] mt-1 font-bold '+(okLinea?'text-leaf':'text-coral');
+  });
+  if(!completo){ toast('Faltan datos en la operación '+ (i+1),'bad'); return; }
+  const mioSet = mio.map(x=>`${x.c}|${x.s}|${x.v}`).sort().join(',');
+  const espSet = esperado.slice().sort().join(',');
+  const sumaD = mio.filter(x=>x.s==='D').reduce((a,b)=>a+b.v,0);
+  const sumaC = mio.filter(x=>x.s==='C').reduce((a,b)=>a+b.v,0);
+  if(sumaD!==sumaC){
+    toast(`❌ La operación no cuadra: débitos ${money(sumaD)} vs créditos ${money(sumaC)}`,'bad');
+    $(`[data-tr="${i}"]`).classList.add('shake'); setTimeout(()=>$(`[data-tr="${i}"]`).classList.remove('shake'),500);
+    return;
+  }
+  if(mioSet!==espSet){
+    toast('Los valores cuadran, pero alguna cuenta o lado está mal. Lee la pista 💡','bad');
+    return;
+  }
+  registrado[i]=mio;
+  toast('✅ ¡Operación '+(i+1)+' registrada en partida doble!','ok');
+  addXP(12,'Registro correcto');
+  renderTrans(); renderLibros();
+  if(Object.keys(registrado).length===TRANS.length){ marcar('diario'); addXP(30,'Ciclo contable completo'); }
+}
+$('#modoExperto').addEventListener('change', renderTrans);
+$('#btnResetLedger').addEventListener('click', ()=>{ Object.keys(registrado).forEach(k=>delete registrado[k]); renderTrans(); renderLibros(); toast('Libros reiniciados','info'); });
+$('#btnRefreshLedger').addEventListener('click', ()=>{ renderLibros(); toast('Libros actualizados 📊','ok'); });
+
+/* ---------- MAYOR / BALANCE DE COMPROBACIÓN ---------- */
+function entradasConError(){
+  let out = [];
+  Object.keys(registrado).forEach(i=> registrado[i].forEach(x=> out.push({...x, tr:+i})) );
+  const modo = +($('input[name="errMode"]:checked')?.value || 0);
+  if(modo===1){ out = out.filter(e=>!(e.tr===3 && e.c==='1105' && e.s==='D')); }
+  if(modo===2){ out = out.map(e=> (e.tr===4 && e.c==='5140' && e.s==='D') ? {...e, c:'1435'} : e ); }
+  return {out, modo};
+}
+function calcularMayor(entradas){
+  const mayor = {};
+  entradas.forEach(e=>{
+    mayor[e.c] = mayor[e.c] || {d:0,c:0};
+    if(e.s==='D') mayor[e.c].d += e.v; else mayor[e.c].c += e.v;
+  });
+  return mayor;
+}
+function saldoDe(mayor, cod){
+  const m = mayor[cod]; if(!m) return 0;
+  const t = CUENTAS[cod].t;
+  const nat = (t==='A'||t==='G') ? m.d-m.c : m.c-m.d;
+  return nat;
+}
+function renderLibros(){
+  const {out, modo} = entradasConError();
+  const mayor = calcularMayor(out);
+  // LIBRO DIARIO
+  const porTr = {};
+  out.forEach(e=>{ (porTr[e.tr] = porTr[e.tr]||[]).push(e); });
+  let diario = `<table class="tbl w-full text-xs md:text-sm bg-white"><thead><tr class="bg-mint"><th>Fecha</th><th class="text-left">Detalle</th><th class="text-left">Cuenta</th><th class="text-right">Débito</th><th class="text-right">Crédito</th></tr></thead><tbody>`;
+  Object.keys(porTr).sort((a,b)=>a-b).forEach((k,idx)=>{
+    const lineas = porTr[k].slice().sort((a,b)=> a.s===b.s?0:(a.s==='D'?-1:1));
+    lineas.forEach((e,j)=>{
+      diario += `<tr class="${j===0?'border-t-4':''}">
+        <td>${String(idx+1).padStart(2,'0')}/10</td>
+        <td class="text-left">${j===0?'Op. '+(+k+1)+' · '+TRANS[k].d.slice(0,52)+'...':''}</td>
+        <td class="text-left font-bold">${e.c} ${CUENTAS[e.c].n}${e.s==='C'?' <span class="text-ink/50">(crédito)</span>':''}</td>
+        <td class="text-right">${e.s==='D'?money(e.v):''}</td>
+        <td class="text-right">${e.s==='C'?money(e.v):''}</td></tr>`;
+    });
+  });
+  const totD = out.filter(e=>e.s==='D').reduce((a,b)=>a+b.v,0);
+  const totC = out.filter(e=>e.s==='C').reduce((a,b)=>a+b.v,0);
+  diario += `<tr class="bg-mustard font-extrabold"><td colspan="3" class="text-right">SUMAS IGUALES</td><td class="text-right">${money(totD)}</td><td class="text-right">${money(totC)}</td></tr></tbody></table>`;
+  $('#libroDiario').innerHTML = out.length ? diario : `<p class="text-sm text-ink/60 p-4 bg-white rounded-xl border-2 border-dashed border-ink/40">Aún no hay registros. Valida las operaciones del taller para llenar el libro diario. 📘</p>`;
+
+  // CUENTAS T
+  $('#cuentasT').innerHTML = Object.keys(mayor).map(cod=>{
+    const m = mayor[cod]; const s = saldoDe(mayor,cod); const t = CUENTAS[cod].t;
+    return `<div class="tacc">
+      <p class="text-center font-display font-extrabold text-xs md:text-sm bg-ink text-cream py-1">${cod} · ${CUENTAS[cod].n}</p>
+      <div class="grid grid-cols-2 text-center text-[11px] md:text-xs">
+        <div class="border-r-[3px] border-ink py-1"><p class="font-extrabold text-tealD border-b-2 border-ink">DÉBITO</p><p class="p-1">${money(m.d)}</p></div>
+        <div class="py-1"><p class="font-extrabold text-coral border-b-2 border-ink">CRÉDITO</p><p class="p-1">${money(m.c)}</p></div>
+      </div>
+      <p class="text-center text-[11px] md:text-xs font-bold py-1 border-t-[3px] border-ink bg-cream">Saldo ${s>=0?'deudor':'acreedor'}: ${money(Math.abs(s))} · naturaleza ${t}</p>
+    </div>`;
+  }).join('') || '<p class="text-sm text-ink/60">Las cuentas T aparecerán aquí.</p>';
+
+  // BALANCE DE COMPROBACIÓN
+  const codigos = Object.keys(mayor).sort();
+  let tb = `<table class="tbl w-full text-xs md:text-sm bg-white"><thead><tr class="bg-mint"><th class="text-left">Cuenta</th><th>Nat.</th><th class="text-right">Débitos</th><th class="text-right">Créditos</th><th class="text-right">Saldo D</th><th class="text-right">Saldo C</th></tr></thead><tbody>`;
+  let sd=0, sc=0;
+  codigos.forEach(cod=>{
+    const m = mayor[cod]; const s = saldoDe(mayor,cod); const t = CUENTAS[cod].t;
+    const natD = (t==='A'||t==='G');
+    const val = Math.abs(s);
+    if(natD) sd+=val; else sc+=val;
+    tb += `<tr><td class="text-left font-bold">${cod} ${CUENTAS[cod].n}</td><td class="text-center">${t}</td>
+      <td class="text-right">${money(m.d)}</td><td class="text-right">${money(m.c)}</td>
+      <td class="text-right ${natD?'font-bold text-tealD':''}">${natD?money(val):''}</td>
+      <td class="text-right ${!natD?'font-bold text-coral':''}">${!natD?money(val):''}</td></tr>`;
+  });
+  tb += `<tr class="bg-mustard font-extrabold"><td colspan="2" class="text-right">TOTALES</td><td class="text-right">${money(totD)}</td><td class="text-right">${money(totC)}</td><td class="text-right">${money(sd)}</td><td class="text-right">${money(sc)}</td></tr></tbody></table>`;
+  $('#balComp').innerHTML = codigos.length ? tb : `<p class="text-sm text-ink/60">Sin movimientos aún.</p>`;
+
+  const cuadraMov = totD===totC, cuadraSal = Math.abs(sd-sc)<1;
+  $('#balCompBanner').innerHTML = codigos.length ? `
+    <div class="p-3 rounded-xl border-[3px] border-ink ${cuadraMov&&cuadraSal?'bg-mint':'bg-[#FFE7E3]'}">
+      <p class="font-display font-extrabold">${cuadraMov&&cuadraSal?'✅ Balance de comprobación CUADRADO':'🚨 ¡DESCUADRE DETECTADO!'}</p>
+      <p class="text-xs mt-1">Suma débitos ${money(totD)} ${cuadraMov?'=':'≠'} suma créditos ${money(totC)} · Saldos deudores ${money(sd)} ${cuadraSal?'=':'≠'} saldos acreedores ${money(sc)}</p>
+    </div>` : '';
+  if(codigos.length && cuadraMov && cuadraSal && Object.keys(registrado).length>=4){ marcar('bcomp'); }
+
+  // ESTADOS FINANCIEROS
+  const ing = codigos.filter(c=>CUENTAS[c].t==='I').reduce((a,c)=>a+saldoDe(mayor,c),0);
+  const gas = codigos.filter(c=>CUENTAS[c].t==='G').reduce((a,c)=>a+Math.max(0,saldoDe(mayor,c)),0);
+  const res = ing-gas;
+  const act = codigos.filter(c=>CUENTAS[c].t==='A').reduce((a,c)=>a+saldoDe(mayor,c),0);
+  const pas = codigos.filter(c=>CUENTAS[c].t==='P').reduce((a,c)=>a+Math.max(0,saldoDe(mayor,c)),0);
+  const pat = codigos.filter(c=>CUENTAS[c].t==='PT').reduce((a,c)=>a+Math.max(0,saldoDe(mayor,c)),0);
+  const ecOk = Math.abs(act - (pas+pat+res)) < 1;
+  $('#estados').innerHTML = codigos.length ? `
+    <div class="p-3 rounded-xl border-[3px] border-ink bg-[#FFF3D6]">
+      <p class="font-display font-extrabold text-sm">Estado de resultados</p>
+      <p class="text-xs mt-1">Ingresos: <b>${money(ing)}</b><br>(−) Gastos: <b>${money(gas)}</b></p>
+      <p class="font-display text-lg font-extrabold mt-1 ${res>=0?'text-leaf':'text-coral'}">${res>=0?'Utilidad':'Pérdida'}: ${money(Math.abs(res))}</p>
+    </div>
+    <div class="p-3 rounded-xl border-[3px] border-ink bg-mint">
+      <p class="font-display font-extrabold text-sm">Situación financiera</p>
+      <p class="text-xs mt-1">Activo: <b>${money(act)}</b><br>Pasivo: <b>${money(pas)}</b><br>Patrimonio: <b>${money(pat)}</b><br>Resultado: <b>${money(res)}</b></p>
+      <p class="text-xs mt-2 font-extrabold ${ecOk?'text-tealD':'text-coral'}">${ecOk?'✔ La ecuación se cumple: '+money(act)+' = '+money(pas+pat+res):'✘ La ecuación NO se cumple: '+money(act)+' ≠ '+money(pas+pat+res)}</p>
+    </div>` : '';
+
+  // ESTATUS + ERROR
+  const total = Object.keys(registrado).length;
+  $('#ledgerStatus').innerHTML = `Operaciones registradas: <b>${total}/${TRANS.length}</b> ${total===TRANS.length?'🎉':''}`;
+  pintarError(modo, {totD,totC,ing,gas,res,act,pas,pat,cuadraMov,cuadraSal});
+}
+function pintarError(modo, r){
+  const box = $('#errorResult');
+  if(!Object.keys(registrado).length){ box.innerHTML = `<p class="text-sm bg-white p-3 rounded-xl border-[3px] border-ink">Registra al menos algunas operaciones arriba para ver el efecto del error. 👆</p>`; return; }
+  const real = {res: 1200000-1300000};
+  if(modo===0){
+    box.innerHTML = `<div class="p-4 rounded-2xl border-[3px] border-ink bg-white">
+      <p class="font-display font-extrabold text-lg text-leaf">😇 Todo en orden</p>
+      <p class="text-sm mt-1">Débitos = créditos (${money(r.totD)}). El resultado del periodo es una <b>${r.res>=0?'utilidad':'pérdida'} de ${money(Math.abs(r.res))}</b>, que refleja la realidad de Arepatech. Así se construye <b>confianza</b>.</p></div>`;
+    marcar('error');
+  } else if(modo===1){
+    box.innerHTML = `<div class="p-4 rounded-2xl border-[3px] border-ink bg-white">
+      <p class="font-display font-extrabold text-lg text-coral">😱 Error 1: falta un lado de la partida</p>
+      <p class="text-sm mt-1">Débitos ${money(r.totD)} ≠ créditos ${money(r.totC)} → diferencia de <b>${money(Math.abs(r.totD-r.totC))}</b>.</p>
+      <p class="text-sm mt-2">🔎 <b>La buena noticia:</b> este error se descubre de inmediato gracias al balance de comprobación. Por eso la partida doble es un <b>sistema de alarmas</b>: si la balanza no cuadra, algo está mal registrado.</p>
+      <p class="text-sm mt-2">🛠️ <b>Cómo corregirlo:</b> busca el comprobante de la venta, identifica el débito faltante en Caja y regístralo con la fecha original (no borres: en contabilidad se corrige con un nuevo asiento o nota, dejando huella).</p></div>`;
+    marcar('error');
+  } else {
+    box.innerHTML = `<div class="p-4 rounded-2xl border-[3px] border-ink bg-white">
+      <p class="font-display font-extrabold text-lg text-plum">🕵️ Error 2: el error invisible (y el más peligroso)</p>
+      <p class="text-sm mt-1">Débitos = créditos = ${money(r.totD)} → <b>¡el balance CUADRA!</b> Pero el arriendo de $600.000 quedó escondido dentro de los inventarios.</p>
+      <div class="grid sm:grid-cols-3 gap-2 mt-3 text-center text-sm">
+        <div class="p-2 rounded-xl border-2 border-ink bg-mint"><p class="text-[11px] font-bold">RESULTADO REAL</p><p class="font-display font-extrabold text-coral">Pérdida ${money(100000)}</p></div>
+        <div class="p-2 rounded-xl border-2 border-ink bg-[#FFE7E3]"><p class="text-[11px] font-bold">RESULTADO DISTORSIONADO</p><p class="font-display font-extrabold text-leaf">${r.res>=0?'Utilidad':'Pérdida'} ${money(Math.abs(r.res))}</p></div>
+        <div class="p-2 rounded-xl border-2 border-ink bg-[#FFF3D6]"><p class="text-[11px] font-bold">ACTIVO INFLADO</p><p class="font-display font-extrabold">${money(r.act)}</p></div>
+      </div>
+      <p class="text-sm mt-3">💥 <b>Consecuencia humana:</b> con esa "utilidad falsa", el administrador cree que puede contratar más personal, el banco aprueba un préstamo que la empresa no podrá pagar y el Estado recibe menos impuestos. Un error de clasificación <b>no descuadra la balanza, pero sí miente</b>.</p>
+      <p class="text-sm mt-2 font-bold">🧭 Lección ética: el equilibrio patrimonial no basta. Se necesita <b>criterio, honestidad y normas (PCGA)</b>. Manipular una cuenta a propósito deja de ser error y se convierte en <b>fraude</b>.</p></div>`;
+    marcar('error'); addXP(30,'Análisis del efecto dominó');
+  }
+}
+$$('input[name="errMode"]').forEach(r=>r.addEventListener('change', renderLibros));
+renderTrans(); renderLibros();
+
+/* =========================================================
+   MÓDULO 3 · MINI CONFERENCIA (SLIDES)
+   ========================================================= */
+const SLIDES = [
+ {t:'¿Para quién contamos?', b:'La contabilidad es el <b>idioma universal de los negocios</b>. Un mismo informe lo leen personas muy distintas: tu papá que presta dinero, la DIAN, un inversionista en otro país o el gerente de la empresa. Todos necesitan entender la misma historia con las mismas reglas.'},
+ {t:'Información interna vs externa', b:'Los <b>usuarios internos</b> (gerente, administradores, jefes de área) usan la información para decidir el día a día: ¿compro más harina?, ¿contrato a alguien? Los <b>usuarios externos</b> (bancos, inversionistas, Estado, proveedores, clientes) la usan para decidir si <b>confían</b> en la empresa.'},
+ {t:'Cada cifra es una persona', b:'Detrás de un "gasto de sueldos" hay familias que reciben su salario. Detrás de un "impuesto por pagar" hay hospitales, escuelas y carreteras. Detrás de una "cuenta por cobrar" hay un proveedor pequeño que necesita su dinero para sobrevivir. <b>Contar bien es respetar a la gente.</b>'},
+ {t:'Transparencia = confianza', b:'Cuando una empresa informa con verdad, consigue mejores préstamos, atrae inversionistas y paga lo justo. Cuando maquilla cifras, gana un respiro hoy y un desastre mañana: multas, quiebra, empleos perdidos y daño a la reputación.'},
+ {t:'Tu rol como ciudadano', b:'Aunque no seas contador, <b>ya eres parte del ecosistema</b>: cuando compras, cuando ahorras, cuando pides una factura. Pedir factura, por ejemplo, es un acto de ciudadanía que ayuda a financiar lo público.'}
+];
+let slideIdx = 0;
+function pintarSlides(){
+  const s = SLIDES[slideIdx];
+  $('#slides').innerHTML = `<div class="rounded-2xl border-[3px] border-ink bg-mint p-6 md:p-8 min-h-[190px]">
+    <p class="text-xs font-extrabold text-tealD">DIAPOSITIVA ${slideIdx+1} DE ${SLIDES.length}</p>
+    <h4 class="font-display text-2xl md:text-3xl font-extrabold mt-1">${s.t}</h4>
+    <p class="mt-2 text-base md:text-lg leading-relaxed">${s.b}</p></div>`;
+  $('#slideDots').innerHTML = SLIDES.map((_,i)=>`<button class="w-3.5 h-3.5 rounded-full border-2 border-ink ${i===slideIdx?'bg-coral':'bg-white'}" data-dot="${i}" aria-label="Ir a diapositiva ${i+1}"></button>`).join('');
+  $$('[data-dot]').forEach(d=>d.addEventListener('click',()=>{slideIdx=+d.dataset.dot;pintarSlides();}));
+}
+$('#slidePrev').addEventListener('click',()=>{slideIdx=Math.max(0,slideIdx-1);pintarSlides();});
+$('#slideNext').addEventListener('click',()=>{
+  slideIdx=Math.min(SLIDES.length-1,slideIdx+1);pintarSlides();
+  if(slideIdx===SLIDES.length-1){ toast('Mini-conferencia completada 🎤','ok'); }
+});
+pintarSlides();
+
+/* =========================================================
+   MÓDULO 3 · CASOS DE ESTUDIO (4 GRUPOS)
+   ========================================================= */
+const CASOS = [
+ {id:'caso1', tab:'🏦 Grupo 1 · Banca e inversionistas', c:'#E4F7F1', tit:'¿Capitalizar o gastar? La decisión que cambia la historia',
+  txt:'Arepatech compra una máquina de $10.000.000 que durará 5 años. El contador debe decidir: ¿la registra como <b>activo</b> (y la deprecia año a año) o la manda toda al <b>gasto</b> del primer año? Los dos caminos son legales si se aplican bien, pero cuentan historias muy distintas a un banco.'},
+ {id:'caso2', tab:'🏛️ Grupo 2 · Estado y sociedad', c:'#EFEAFF', tit:'Impuestos, factura y formalización',
+  txt:'El Estado financia escuelas, hospitales y vías con los impuestos. Si una empresa declara menos ventas de las reales, paga menos impuestos… y la sociedad pierde. Además, la informalidad deja a los trabajadores sin salud, pensión ni protección.'},
+ {id:'caso3', tab:'📈 Grupo 3 · Administradores', c:'#FFF3D6', tit:'El presupuesto: pilotear con el tablero encendido',
+  txt:'Sin información financiera, un gerente maneja a ciegas. Con ella, puede planear el mes, saber cuánto puede gastar, cuándo necesita un préstamo y qué producto deja más ganancia. Arma un presupuesto mensual y descubre si Arepatech sobrevive.'},
+ {id:'caso4', tab:'🚚 Grupo 4 · Proveedores y acreedores', c:'#FFE7E3', tit:'Liquidez: ¿te puedo fiar la mercancía?',
+  txt:'Un proveedor que vende a crédito se fija en la <b>liquidez</b>: ¿tienes suficientes activos corrientes para pagar tus pasivos corrientes? La razón corriente = Activo Corriente ÷ Pasivo Corriente decide si te fía a 30 o 60 días, o si te exige pago de contado.'}
+];
+let casoActual = 'caso1';
+const casosVistos = new Set();
+function pintarCasoTabs(){
+  $('#casoTabs').innerHTML = CASOS.map(c=>`<button data-caso="${c.id}" class="btn px-4 py-2 text-xs md:text-sm ${c.id===casoActual?'bg-ink text-white':'bg-white'}">${c.tab}</button>`).join('');
+  $$('[data-caso]').forEach(b=>b.addEventListener('click',()=>{casoActual=b.dataset.caso;pintarCasoTabs();pintarCaso();}));
+}
+function pintarCaso(){
+  const c = CASOS.find(x=>x.id===casoActual);
+  casosVistos.add(c.id);
+  if(casosVistos.size===4){ marcar('casos'); addXP(40,'Exploraste los 4 casos del ecosistema'); }
+  const cuerpo = {
+    caso1:`<div class="grid md:grid-cols-2 gap-4 mt-4">
+      <div class="p-4 rounded-2xl border-[3px] border-ink bg-cream">
+        <p class="font-display font-extrabold">Elige el tratamiento contable</p>
+        <div class="flex gap-2 mt-2 flex-wrap">
+          <button id="opCap" class="btn bg-teal text-white px-4 py-2 text-sm">🏗️ Capitalizar (activo + depreciación)</button>
+          <button id="opGas" class="btn bg-white px-4 py-2 text-sm">💸 Todo al gasto del año 1</button>
+        </div>
+        <p class="text-xs mt-2 text-ink/70">Datos: ingresos anuales $20.000.000 · otros costos $12.000.000 · máquina $10.000.000 · vida útil 5 años.</p>
+        <div id="bancoRes" class="mt-3 p-3 rounded-xl border-[3px] border-ink bg-white text-sm"></div>
+      </div>
+      <div class="p-4 rounded-2xl border-[3px] border-ink bg-white">
+        <p class="font-display font-extrabold">Utilidad por año (5 años)</p>
+        <div id="grafico1" class="mt-2"></div>
+      </div>
+    </div>
+    <div class="mt-4 p-4 rounded-2xl border-[3px] border-ink bg-mint text-sm">
+      <p class="font-display font-extrabold text-lg">🌱 Oportunidades de decisión</p>
+      <ul class="list-disc ml-5 mt-1 space-y-1">
+        <li>El banco puede ofrecer <b>mejor tasa de interés</b> a empresas con estados financieros claros.</li>
+        <li>La empresa puede mostrar capacidad real de pago y <b>crecer sin endeudarse mal</b>.</li>
+      </ul>
+      <p class="font-display font-extrabold text-lg mt-3">🚨 Riesgos de desinformación</p>
+      <ul class="list-disc ml-5 mt-1 space-y-1">
+        <li>Registrar todo como gasto para "pagar menos impuestos" muestra pérdidas falsas y <b>cierra las puertas del crédito</b>.</li>
+        <li>Inflar utilidades para conseguir un préstamo puede terminar en <b>incumplimiento, embargos y empleos perdidos</b>.</li>
+      </ul>
+    </div>`,
+    caso2:`<div class="grid md:grid-cols-2 gap-4 mt-4">
+      <div class="p-4 rounded-2xl border-[3px] border-ink bg-cream">
+        <p class="font-display font-extrabold">Simulador: ¿cuánto se declara?</p>
+        <label class="text-sm font-bold mt-2 block">Ventas reales del año: <b>$50.000.000</b></label>
+        <label class="text-sm font-bold mt-3 block">Ventas declaradas: <span id="lblDecl" class="text-plum"></span></label>
+        <input id="sldDecl" type="range" min="0" max="50000000" step="1000000" value="50000000" class="range w-full mt-1">
+        <div id="impRes" class="mt-3"></div>
+      </div>
+      <div class="p-4 rounded-2xl border-[3px] border-ink bg-white">
+        <p class="font-display font-extrabold">Medidor de riesgo 🚦</p>
+        <div id="riesgoBox" class="mt-2"></div>
+        <p class="text-xs mt-3 text-ink/70">Costos y gastos reales del año: $38.000.000 · Tarifa de renta usada: 35% · IVA: 19% (valores didácticos).</p>
+      </div>
+    </div>
+    <div class="mt-4 p-4 rounded-2xl border-[3px] border-ink bg-[#EFEAFF] text-sm">
+      <p class="font-display font-extrabold text-lg">🌱 Oportunidades de decisión</p>
+      <ul class="list-disc ml-5 mt-1 space-y-1"><li>Declarar bien permite <b>formalizar empleados</b> (salud, pensión, cesantías).</li><li>La empresa formal accede a <b>créditos, licitaciones y clientes grandes</b>.</li></ul>
+      <p class="font-display font-extrabold text-lg mt-3">🚨 Riesgos de desinformación</p>
+      <ul class="list-disc ml-5 mt-1 space-y-1"><li>Ocultar ingresos = <b>evasión</b>: sanciones, intereses, cierre del negocio y consecuencias penales.</li><li>Menos impuestos recaudados = <b>menos escuelas, hospitales y vías</b> para todos.</li></ul>
+    </div>`,
+    caso3:`<div class="grid md:grid-cols-2 gap-4 mt-4">
+      <div class="p-4 rounded-2xl border-[3px] border-ink bg-cream">
+        <p class="font-display font-extrabold">Presupuesto del mes (ingresos: $8.000.000)</p>
+        <div id="presup" class="space-y-3 mt-3"></div>
+      </div>
+      <div class="p-4 rounded-2xl border-[3px] border-ink bg-white">
+        <p class="font-display font-extrabold">Tablero de control</p>
+        <div id="presupRes" class="mt-2"></div>
+      </div>
+    </div>
+    <div class="mt-4 p-4 rounded-2xl border-[3px] border-ink bg-[#FFF3D6] text-sm">
+      <p class="font-display font-extrabold text-lg">🌱 Oportunidades de decisión</p>
+      <ul class="list-disc ml-5 mt-1 space-y-1"><li>Comparar meses permite <b>detectar fugas</b> de dinero y renegociar con proveedores.</li><li>Un flujo de caja bien proyectado evita <b>pedir prestado con intereses altísimos</b>.</li></ul>
+      <p class="font-display font-extrabold text-lg mt-3">🚨 Riesgos de desinformación</p>
+      <ul class="list-disc ml-5 mt-1 space-y-1"><li>Sin registros, el gerente <b>confunde caja con ganancia</b>: hay dinero hoy pero el negocio pierde.</li><li>Decisiones por intuición llevan a <b>compras excesivas, deudas y cierre</b> (muchas microempresas no llegan al tercer año).</li></ul>
+    </div>`,
+    caso4:`<div class="grid md:grid-cols-2 gap-4 mt-4">
+      <div class="p-4 rounded-2xl border-[3px] border-ink bg-cream">
+        <p class="font-display font-extrabold">Calculadora de liquidez</p>
+        <label class="text-sm font-bold mt-2 block">Activo corriente (caja + inventarios + por cobrar): <span id="lblAC" class="text-tealD"></span></label>
+        <input id="sldAC" type="range" min="500000" max="9000000" step="250000" value="5000000" class="range w-full">
+        <label class="text-sm font-bold mt-3 block">Pasivo corriente (deudas a menos de 1 año): <span id="lblPC" class="text-coral"></span></label>
+        <input id="sldPC" type="range" min="500000" max="9000000" step="250000" value="2500000" class="range w-full">
+      </div>
+      <div class="p-4 rounded-2xl border-[3px] border-ink bg-white">
+        <p class="font-display font-extrabold">Semáforo del proveedor</p>
+        <div id="liqRes" class="mt-2"></div>
+      </div>
+    </div>
+    <div class="mt-4 p-4 rounded-2xl border-[3px] border-ink bg-[#FFE7E3] text-sm">
+      <p class="font-display font-extrabold text-lg">🌱 Oportunidades de decisión</p>
+      <ul class="list-disc ml-5 mt-1 space-y-1"><li>Una buena liquidez consigue <b>plazos de 30, 60 o 90 días</b> y descuentos por pronto pago.</li><li>La cadena de suministro se fortalece: el proveedor confía y <b>ambos crecen</b>.</li></ul>
+      <p class="font-display font-extrabold text-lg mt-3">🚨 Riesgos de desinformación</p>
+      <ul class="list-disc ml-5 mt-1 space-y-1"><li>Si el proveedor no recibe información, cobra de contado o <b>suspende el despacho</b>: se acaba la harina y se para la producción.</li><li>Un cliente grande puede <b>romper el contrato</b> si descubre cifras falseadas.</li></ul>
+    </div>`
+  }[c.id];
+  $('#casoBody').innerHTML = `
+    <div class="p-4 rounded-2xl border-[3px] border-ink" style="background:${c.c}">
+      <p class="text-xs font-extrabold">${c.tab}</p>
+      <h3 class="font-display text-2xl md:text-3xl font-extrabold mt-1">${c.tit}</h3>
+      <p class="text-sm md:text-base mt-2 max-w-4xl">${c.txt}</p>
+    </div>${cuerpo}`;
+  montarCaso(c.id);
+}
+function montarCaso(id){
+  if(id==='caso1'){
+    let modo = 'cap';
+    const pintar = ()=>{
+      const ing=20000000, otros=12000000, maq=10000000, dep=maq/5;
+      const anos = [1,2,3,4,5].map(y=>{
+        const utilCap = ing-otros-dep;
+        const utilGas = y===1 ? ing-otros-maq : ing-otros;
+        return modo==='cap' ? utilCap : utilGas;
+      });
+      const util1 = anos[0];
+      const margen = util1/ing*100;
+      const decision = util1>2000000;
+      $('#bancoRes').innerHTML = `<p class="font-display font-extrabold ${decision?'text-leaf':'text-coral'}">${decision?'✅ El banco APRUEBA el préstamo':'⛔ El banco NIEGA el préstamo'}</p>
+        <p class="text-xs mt-1">Utilidad año 1: <b>${money(util1)}</b> · Margen: <b>${margen.toFixed(1)}%</b></p>
+        <p class="text-xs mt-1 text-ink/75">${decision?'La empresa muestra capacidad de pago sostenida en el tiempo.':'Aparece una pérdida enorme en el primer año: para el banco, el riesgo es altísimo.'}</p>`;
+      const maxV = Math.max(...anos.map(Math.abs), 1);
+      $('#grafico1').innerHTML = `<div class="flex items-end gap-2 h-44 border-b-[3px] border-l-[3px] border-ink pl-2 pt-2">
+        ${anos.map((v,i)=>{
+          const h = Math.abs(v)/maxV*130;
+          return `<div class="flex-1 flex flex-col items-center justify-end">
+            <p class="text-[10px] font-bold">${v>=0?'':'−'}${money(Math.abs(v)).replace('$','$')}</p>
+            <div class="w-full rounded-t-lg border-[3px] border-ink ${v>=0?'bg-leaf':'bg-coral'}" style="height:${Math.max(6,h)}px"></div>
+            <p class="text-[10px] mt-1">Año ${i+1}</p></div>`;
+        }).join('')}
+      </div>
+      <p class="text-xs mt-2 text-ink/70">${modo==='cap'?'La máquina se reparte en 5 años (depreciación): la utilidad es estable y refleja el uso real del equipo.':'Todo el costo golpea el año 1: parece que la empresa quebró, aunque la máquina seguirá produciendo 5 años.'}</p>`;
+    };
+    $('#opCap').addEventListener('click',()=>{modo='cap';$('#opCap').className='btn bg-teal text-white px-4 py-2 text-sm';$('#opGas').className='btn bg-white px-4 py-2 text-sm';pintar();});
+    $('#opGas').addEventListener('click',()=>{modo='gas';$('#opGas').className='btn bg-coral text-white px-4 py-2 text-sm';$('#opCap').className='btn bg-white px-4 py-2 text-sm';pintar();});
+    pintar();
+  }
+  if(id==='caso2'){
+    const upd = ()=>{
+      const decl = +$('#sldDecl').value, real = 50000000, costos = 38000000;
+      $('#lblDecl').textContent = money(decl);
+      const ivaReal = real*0.19, ivaDecl = decl*0.19;
+      const baseR = Math.max(0, decl-costos), rentaDecl = baseR*0.35;
+      const baseRR = Math.max(0, real-costos), rentaReal = baseRR*0.35;
+      const totalDecl = ivaDecl+rentaDecl, totalReal = ivaReal+rentaReal;
+      const brecha = totalReal-totalDecl;
+      const riesgo = Math.min(100, brecha/Math.max(totalReal,1)*100);
+      $('#impRes').innerHTML = `<div class="p-3 rounded-xl border-[3px] border-ink bg-white text-sm">
+        <p>IVA (19%) declarado: <b>${money(ivaDecl)}</b></p>
+        <p>Renta (35% de ${money(baseR)}): <b>${money(rentaDecl)}</b></p>
+        <p class="font-display font-extrabold text-lg mt-1">Total a pagar: ${money(totalDecl)}</p>
+        <p class="mt-2 ${brecha>1?'text-coral font-bold':'text-leaf font-bold'}">${brecha>1?'Dejas de aportar a la sociedad: '+money(brecha):'✔ Declaras la realidad: aportas lo justo'}</p>
+      </div>`;
+      const col = riesgo<5?'#3DBE73':riesgo<40?'#FFC145':'#FF6B5B';
+      const txt = riesgo<5?'BAJO: estás al día. Duermes tranquilo.'
+        :riesgo<40?'MEDIO: la DIAN puede requerirte información y aplicar sanciones e intereses.'
+        :'ALTO: investigación, multas de hasta el 160% del impuesto omitido, cierre del establecimiento y proceso penal por evasión.';
+      $('#riesgoBox').innerHTML = `<div class="h-8 rounded-full border-[3px] border-ink bg-cream overflow-hidden"><div class="h-full transition-all duration-500" style="width:${Math.max(4,riesgo)}%;background:${col}"></div></div>
+        <p class="text-sm font-bold mt-2" style="color:${col}">Riesgo: ${Math.round(riesgo)}%</p><p class="text-xs mt-1">${txt}</p>
+        <p class="text-xs mt-3 p-2 rounded-lg bg-cream border-2 border-ink">💡 ¿Sabías que pedir factura como cliente también es un acto de ciudadanía? Sin factura, la venta puede quedar invisible.</p>`;
+    };
+    $('#sldDecl').addEventListener('input', upd); upd();
+  }
+  if(id==='caso3'){
+    const gatos = [
+      {k:'arr',n:'Arriendo del local',v:2000000,max:4000000},
+      {k:'sue',n:'Sueldos',v:2500000,max:5000000},
+      {k:'ins',n:'Insumos (harina, queso…)',v:2000000,max:5000000},
+      {k:'pub',n:'Publicidad',v:500000,max:2000000},
+      {k:'ser',n:'Servicios públicos',v:400000,max:1500000},
+      {k:'otr',n:'Otros gastos',v:300000,max:1500000}
+    ];
+    const ing = 8000000;
+    const pintar = ()=>{
+      $('#presup').innerHTML = gatos.map(g=>`
+        <div><label class="text-xs font-bold flex justify-between"><span>${g.n}</span><span class="val-${g.k}">${money(g.v)}</span></label>
+        <input type="range" min="0" max="${g.max}" step="50000" value="${g.v}" data-k="${g.k}" class="range w-full presRange"></div>`).join('');
+      $$('.presRange').forEach(r=>r.addEventListener('input',e=>{
+        const g = gatos.find(x=>x.k===e.target.dataset.k); g.v=+e.target.value;
+        $('.val-'+g.k).textContent = money(g.v); calc();
+      }));
+      calc();
+    };
+    const calc = ()=>{
+      const tot = gatos.reduce((a,g)=>a+g.v,0);
+      const saldo = ing-tot;
+      const pct = tot/ing*100;
+      const col = saldo>1000000?'#3DBE73':saldo>=0?'#FFC145':'#FF6B5B';
+      $('#presupRes').innerHTML = `
+        <div class="h-8 rounded-full border-[3px] border-ink bg-cream overflow-hidden flex">
+          <div class="h-full bg-coral" style="width:${Math.min(100,pct)}%"></div>
+        </div>
+        <p class="text-sm mt-2">Ingresos: <b>${money(ing)}</b> · Gastos: <b>${money(tot)}</b></p>
+        <p class="font-display font-extrabold text-xl mt-1" style="color:${col}">${saldo>=0?'Saldo a favor: '+money(saldo):'Déficit: '+money(Math.abs(saldo))}</p>
+        <p class="text-xs mt-2">${saldo<0?'🚨 Estás gastando más de lo que produces. Recorta publicidad u otros gastos, o busca aumentar ventas con un nuevo producto.':'👍 El negocio sobrevive. Un buen administrador guarda parte del saldo para imprevistos (fondo de emergencia) y para reinvertir.'}</p>
+        <p class="text-xs mt-2 p-2 rounded-lg bg-cream border-2 border-ink">💡 Ojo: tener dinero en caja NO es lo mismo que tener ganancia. La ganancia se calcula con los <b>gastos causados</b>, aunque aún no se hayan pagado.</p>`;
+    };
+    pintar();
+  }
+  if(id==='caso4'){
+    const upd = ()=>{
+      const ac = +$('#sldAC').value, pc = +$('#sldPC').value;
+      $('#lblAC').textContent = money(ac); $('#lblPC').textContent = money(pc);
+      const rc = ac/pc, kt = ac-pc;
+      const col = rc>=1.5?'#3DBE73':rc>=1?'#FFC145':'#FF6B5B';
+      const msg = rc>=1.5?'🟢 Excelente liquidez. El proveedor ofrece crédito a 60 días y descuentos por pronto pago.'
+        :rc>=1?'🟡 Liquidez justa. El proveedor fía a 30 días, pero vigila de cerca tus pagos.'
+        :'🔴 Liquidez crítica. El proveedor exige pago de contado o suspende los despachos.';
+      $('#liqRes').innerHTML = `
+        <div class="grid grid-cols-2 gap-3 text-center">
+          <div class="p-3 rounded-xl border-[3px] border-ink bg-cream"><p class="text-[11px] font-bold">RAZÓN CORRIENTE</p><p class="font-display text-3xl font-extrabold" style="color:${col}">${rc.toFixed(2)}</p></div>
+          <div class="p-3 rounded-xl border-[3px] border-ink bg-cream"><p class="text-[11px] font-bold">CAPITAL DE TRABAJO</p><p class="font-display text-2xl font-extrabold ${kt>=0?'text-leaf':'text-coral'}">${money(kt)}</p></div>
+        </div>
+        <p class="text-sm mt-3 font-bold">${msg}</p>
+        <p class="text-xs mt-2 text-ink/70">Regla general: razón corriente ideal entre 1.5 y 2.0. Si es muy alta tampoco es perfecto: tendrías dinero quieto que podría estar produciendo.</p>`;
+    };
+    $('#sldAC').addEventListener('input',upd); $('#sldPC').addEventListener('input',upd); upd();
+  }
+}
+pintarCasoTabs(); pintarCaso();
+
+/* =========================================================
+   MÓDULO 3 · MAPA MENTAL
+   ========================================================= */
+const mapaWrap = $('#mapaWrap'), mapaSvg = $('#mapaSvg'), mapaNodes = $('#mapaNodes');
+let nodes = [], edges = [], nodeSeq = 0, linkMode = false, linkFirst = null;
+const COLORES_NODE = {centro:'#12263A', actor:'#0FA3A3', oportunidad:'#3DBE73', riesgo:'#FF6B5B'};
+function initMapa(){
+  nodes = [{id:'n'+(nodeSeq++), tipo:'centro', txt:$('#mapaSelect').value==='caso1'?'CASO: Bancos e inversionistas':'CASO: Estudio del ecosistema', x:380, y:230}];
+  edges = []; pintarMapa();
+}
+function addNode(tipo, txt, x, y){
+  const n = {id:'n'+(nodeSeq++), tipo, txt, x: x ?? 80+Math.random()*500, y: y ?? 60+Math.random()*360};
+  nodes.push(n);
+  if(nodes[0]) edges.push({a:nodes[0].id, b:n.id});
+  pintarMapa();
+}
+function pintarMapa(){
+  mapaNodes.innerHTML = nodes.map(n=>{
+    const bg = n.tipo==='centro' ? '#12263A' : '#fff';
+    const col = n.tipo==='centro' ? '#fff' : '#12263A';
+    const borde = COLORES_NODE[n.tipo];
+    return `<div class="mapa-node pop" data-id="${n.id}" style="left:${n.x}px;top:${n.y}px;border-color:${borde};${n.tipo==='centro'?`background:${bg};color:${col};font-weight:800`:''}${n.tipo==='oportunidad'?'background:#EAFBF1':''}${n.tipo==='riesgo'?'background:#FFEDEA':''}${n.tipo==='actor'?'background:#E4F7F1':''}">
+      <div class="flex items-start gap-1">
+        <span class="text-xs">${n.tipo==='centro'?'🎯':n.tipo==='actor'?'👥':n.tipo==='oportunidad'?'🌱':'🚨'}</span>
+        <span class="txt text-xs font-bold flex-1" contenteditable="true" spellcheck="false">${n.txt}</span>
+        ${n.tipo!=='centro'?`<button class="del text-xs leading-none text-coral font-extrabold" title="Eliminar">✕</button>`:''}
+      </div>
+      <p class="text-[9px] mt-1 font-extrabold uppercase opacity-60">${n.tipo}</p>
+    </div>`;
+  }).join('');
+  // drag + delete
+  $$('.mapa-node').forEach(el=>{
+    const id = el.dataset.id;
+    el.querySelector('.del')?.addEventListener('click', e=>{
+      e.stopPropagation();
+      nodes = nodes.filter(n=>n.id!==id);
+      edges = edges.filter(x=>x.a!==id && x.b!==id);
+      pintarMapa();
+    });
+    el.addEventListener('click', e=>{
+      if(e.target.classList.contains('txt')) return;
+      if(!linkMode) return;
+      if(!linkFirst){ linkFirst=id; el.style.outline='4px dashed #7A5AF8'; }
+      else { if(linkFirst!==id && !edges.some(x=>(x.a===linkFirst&&x.b===id)||(x.b===linkFirst&&x.a===id))) edges.push({a:linkFirst,b:id});
+             linkFirst=null; $$('.mapa-node').forEach(n=>n.style.outline=''); pintarMapa(); }
+    });
+    el.addEventListener('pointerdown', e=>{
+      if(e.target.classList.contains('txt') || e.target.classList.contains('del') || linkMode) return;
+      e.preventDefault();
+      const rect = mapaWrap.getBoundingClientRect();
+      const n = nodes.find(x=>x.id===id);
+      const offX = e.clientX - rect.left - n.x, offY = e.clientY - rect.top - n.y;
+      const move = ev=>{
+        const r = mapaWrap.getBoundingClientRect();
+        n.x = Math.max(4, Math.min(r.width-130, ev.clientX - r.left - offX));
+        n.y = Math.max(4, Math.min(r.height-70, ev.clientY - r.top - offY));
+        el.style.left = n.x+'px'; el.style.top = n.y+'px';
+        drawEdges();
+      };
+      const up = ()=>{ window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); };
+      window.addEventListener('pointermove',move); window.addEventListener('pointerup',up);
+    });
+    el.querySelector('.txt').addEventListener('input', e=>{
+      const n = nodes.find(x=>x.id===id); n.txt = e.target.textContent;
+    });
+  });
+  drawEdges();
+}
+function drawEdges(){
+  const pos = {};
+  $$('.mapa-node').forEach(el=>{
+    pos[el.dataset.id] = {x: el.offsetLeft + el.offsetWidth/2, y: el.offsetTop + el.offsetHeight/2};
+  });
+  mapaSvg.setAttribute('width', mapaWrap.clientWidth);
+  mapaSvg.setAttribute('height', mapaWrap.clientHeight);
+  mapaSvg.innerHTML = edges.map(e=>{
+    const p = pos[e.a], q = pos[e.b]; if(!p||!q) return '';
+    return `<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="#12263A" stroke-width="3" stroke-dasharray="8 6" opacity=".55"/>`;
+  }).join('');
+}
+$$('[data-add]').forEach(b=>b.addEventListener('click',()=>{
+  const tipo = b.dataset.add;
+  const txt = tipo==='actor' ? 'Actor: (ej. Banco que evalúa el préstamo)' : tipo==='oportunidad' ? 'Oportunidad de decisión: …' : 'Riesgo de desinformación: …';
+  addNode(tipo, txt);
+}));
+$('#mapaLink').addEventListener('click', ()=>{
+  linkMode=!linkMode; linkFirst=null;
+  $('#mapaLink').className = linkMode ? 'btn bg-plum text-white px-4 py-2 text-sm' : 'btn bg-white px-4 py-2 text-sm';
+  toast(linkMode?'Modo conectar: toca dos fichas 🔗':'Modo conectar desactivado','info');
+});
+$('#mapaReset').addEventListener('click', initMapa);
+$('#mapaSelect').addEventListener('change', ()=>{
+  const nombres = {caso1:'CASO: Bancos e inversionistas',caso2:'CASO: Estado y sociedad',caso3:'CASO: Administradores',caso4:'CASO: Proveedores y acreedores'};
+  nodes = [{id:'n'+(nodeSeq++), tipo:'centro', txt:nombres[$('#mapaSelect').value], x:380, y:230}];
+  edges=[]; pintarMapa();
+});
+$('#mapaEjemplo').addEventListener('click', ()=>{
+  nodes=[{id:'n0',tipo:'centro',txt:'CASO: Bancos e inversionistas',x:360,y:235}]; edges=[];
+  const ej = [
+    ['actor','🏦 Banco que evalúa el préstamo',90,60],
+    ['actor','💼 Inversionista potencial',600,60],
+    ['actor','👩‍💼 Gerente de Arepatech',620,330],
+    ['oportunidad','Mejor tasa de interés si hay cifras claras',60,330],
+    ['oportunidad','Acceso a crédito para comprar más maquinaria',250,410],
+    ['riesgo','Utilidades infladas → préstamo que no se puede pagar',60,190],
+    ['riesgo','Pérdidas falsas → se niega crédito a un negocio sano',620,190]
+  ];
+  ej.forEach((e,i)=>{ const id='n'+(++nodeSeq); nodes.push({id,tipo:e[0],txt:e[1],x:e[2],y:e[3]}); edges.push({a:'n0',b:id}); });
+  edges.push({a:nodes[1].id,b:nodes[4].id},{a:nodes[2].id,b:nodes[5].id});
+  pintarMapa();
+  toast('Ejemplo cargado: personalízalo con tu grupo ✨','ok');
+});
+$('#mapaCheck').addEventListener('click', ()=>{
+  const a = nodes.filter(n=>n.tipo==='actor').length;
+  const o = nodes.filter(n=>n.tipo==='oportunidad').length;
+  const r = nodes.filter(n=>n.tipo==='riesgo').length;
+  const vacios = nodes.filter(n=>n.txt.includes('…')||n.txt.trim().length<6).length;
+  const msg = $('#mapaMsg');
+  if(a>=1 && o>=2 && r>=2 && vacios===0){
+    msg.className='text-sm font-bold mt-2 text-leaf';
+    msg.innerHTML='✅ ¡Mapa completo! Ahora prepara tu exposición: 1) presenta el actor, 2) explica la oportunidad de decisión con cifras, 3) describe el riesgo de desinformación y su consecuencia humana.';
+    marcar('mapa'); addXP(70,'Mapa mental validado');
+  } else {
+    msg.className='text-sm font-bold mt-2 text-coral';
+    msg.innerHTML=`🔎 Te falta: ${a<1?'al menos 1 actor · ':''}${o<2?`llegar a 2 oportunidades (tienes ${o}) · `:''}${r<2?`llegar a 2 riesgos (tienes ${r}) · `:''}${vacios?`escribir el contenido de ${vacios} ficha(s)`:''}`;
+  }
+});
+window.addEventListener('resize', drawEdges);
+initMapa();
+
+/* =========================================================
+   RETO FINAL · QUIZ
+   ========================================================= */
+const QUIZ = [
+ {q:'Tu amigo dice: "Mi celular es un activo porque lo uso todos los días". Según la contabilidad, ¿qué lo convierte realmente en activo?',
+  o:['Que lo use mucho','Que sea un recurso controlado del que se esperan beneficios económicos futuros','Que sea muy costoso','Que sea de marca'], a:1,
+  e:'Un activo es un <b>recurso controlado</b> por la entidad del cual se esperan <b>beneficios económicos futuros</b>. El uso frecuente no es el criterio técnico.'},
+ {q:'Si el Activo es $9.000.000 y el Pasivo $3.500.000, ¿cuál es el Patrimonio?',
+  o:['$12.500.000','$5.500.000','$3.500.000','No se puede saber'], a:1,
+  e:'Patrimonio = Activo − Pasivo = 9.000.000 − 3.500.000 = <b>$5.500.000</b>. Esa es la riqueza neta.'},
+ {q:'Compras mercancía por $500.000 y la pagas en efectivo. ¿Cuál es el registro correcto?',
+  o:['Débito Inventarios 500.000 / Crédito Caja 500.000','Débito Caja 500.000 / Crédito Inventarios 500.000','Débito Gasto 500.000 / Crédito Caja 500.000','Débito Proveedores 500.000 / Crédito Caja 500.000'], a:0,
+  e:'Sube el inventario (activo → débito) y baja la caja (activo → crédito). Dos cuentas, mismo valor: partida doble.'},
+ {q:'Las cuentas de PASIVO aumentan por:',
+  o:['El débito','El crédito','Ambos lados','Ninguno'], a:1,
+  e:'Pasivo, patrimonio e ingresos (clases 2, 3 y 4) aumentan por el <b>crédito</b>.'},
+ {q:'¿Para qué sirve el balance de comprobación?',
+  o:['Para calcular impuestos','Para verificar que la suma de débitos sea igual a la suma de créditos','Para pagar a los empleados','Para hacer publicidad'], a:1,
+  e:'Es la prueba aritmética de la partida doble: si las sumas no coinciden, hay un error de registro.'},
+ {q:'Registras el arriendo como si fuera inventario. El balance sigue cuadrando, pero…',
+  o:['No pasa nada, cuadra','Los gastos quedan subestimados y la utilidad falsa: es el error más peligroso','Se descuadra automáticamente','El banco lo detecta siempre'], a:1,
+  e:'Es un error de <b>clasificación</b>: las sumas cuadran, pero la información miente. Afecta decisiones de bancos, inversionistas y del Estado.'},
+ {q:'Un cliente te paga un anticipo de $300.000 por un pedido que entregarás el próximo mes. Ese dinero es:',
+  o:['Un ingreso del mes','Un pasivo (obligación de entregar)','Patrimonio','Un activo fijo'], a:1,
+  e:'Mientras no entregues el bien o servicio, es un <b>ingreso recibido por anticipado = pasivo</b>. Tienes una obligación pendiente.'},
+ {q:'¿Cuál de estas acciones refleja integridad contable (Saber Ser)?',
+  o:['Ocultar una deuda para que el balance se vea mejor','Registrar las cifras tal como ocurrieron, aunque el resultado no guste','Aumentar los ingresos antes de entregar el producto','Borrar el asiento equivocado sin dejar huella'], a:1,
+  e:'La integridad es registrar la <b>realidad económica</b>. Los PCGA exigen veracidad y las correcciones deben dejar rastro.'},
+ {q:'La razón corriente de una empresa es 0.7. Un proveedor probablemente:',
+  o:['Le dará crédito a 90 días','Le exigirá pago de contado porque hay riesgo de impago','Le regalará mercancía','No cambia su conducta'], a:1,
+  e:'Razón corriente menor a 1 significa que los pasivos corrientes superan los activos corrientes: <b>riesgo de liquidez</b>.'},
+ {q:'¿Por qué se dice que la información financiera tiene impacto social?',
+  o:['Porque se publica en redes sociales','Porque determina créditos, impuestos, empleo y la confianza de toda la cadena económica','Porque la hacen los contadores','Porque usa números'], a:1,
+  e:'Cada informe mueve decisiones de bancos, Estado, proveedores, trabajadores e inversionistas: <b>cada cifra tiene consecuencias humanas</b>.'}
+];
+let qIdx=0, qScore=0, qDone=false;
+function pintarQuiz(){
+  if(qDone){
+    const pct = Math.round(qScore/QUIZ.length*100);
+    $('#quizBox').innerHTML = `<div class="text-center">
+      <div class="text-6xl">${pct>=80?'🏆':pct>=60?'🎉':'📖'}</div>
+      <p class="font-display text-3xl font-extrabold mt-2">${pct>=80?'¡Maestro de la lógica financiera!':pct>=60?'¡Muy bien! Sigue afinando':'Buen intento: repite los módulos'}</p>
+      <p class="text-lg mt-1">Aciertos: <b>${qScore}/${QUIZ.length}</b> (${pct}%)</p>
+      <div class="h-5 rounded-full border-[3px] border-ink bg-cream overflow-hidden max-w-md mx-auto mt-3"><div class="h-full bg-leaf" style="width:${pct}%"></div></div>
+      <p class="text-sm mt-4 max-w-2xl mx-auto">Recuerda lo más importante del taller: <b>la contabilidad no es un trámite, es un acto de honestidad</b>. Cada registro correcto protege a trabajadores, proveedores, al Estado y a ti mismo.</p>
+      <div class="flex gap-3 justify-center mt-5 flex-wrap">
+        <button id="qRetry" class="btn bg-white px-5 py-2">↺ Repetir reto</button>
+        <a href="#diploma" class="btn bg-mustard px-5 py-2">🎓 Ir a mi diploma</a>
+      </div></div>`;
+    $('#qRetry').addEventListener('click',()=>{qIdx=0;qScore=0;qDone=false;pintarQuiz();});
+    if(pct>=60){ marcar('quiz'); addXP(100,'Reto final superado'); }
+    return;
+  }
+  const p = QUIZ[qIdx];
+  $('#quizBox').innerHTML = `
+    <div class="flex items-center gap-3">
+      <span class="btn bg-plum text-white px-3 py-1 text-xs">Pregunta ${qIdx+1}/${QUIZ.length}</span>
+      <div class="flex-1 h-3 rounded-full border-2 border-ink bg-cream overflow-hidden"><div class="h-full bg-plum transition-all" style="width:${(qIdx)/QUIZ.length*100}%"></div></div>
+      <span class="text-sm font-bold">⭐ ${qScore}</span>
+    </div>
+    <p class="font-display text-xl md:text-2xl font-extrabold mt-4">${p.q}</p>
+    <div class="grid sm:grid-cols-2 gap-3 mt-4" id="qOpts">
+      ${p.o.map((o,i)=>`<button class="text-left p-3 rounded-2xl border-[3px] border-ink bg-cream hover:bg-mint transition font-semibold text-sm" data-o="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}
+    </div>
+    <div id="qFb" class="mt-4"></div>`;
+  $$('#qOpts button').forEach(b=>b.addEventListener('click',()=>{
+    const i = +b.dataset.o;
+    $$('#qOpts button').forEach(x=>x.disabled=true);
+    if(i===p.a){ b.className='text-left p-3 rounded-2xl border-[3px] border-ink bg-leaf text-white font-semibold text-sm'; qScore++; addXP(10,'Respuesta correcta'); }
+    else { b.className='text-left p-3 rounded-2xl border-[3px] border-ink bg-coral text-white font-semibold text-sm';
+           $$('#qOpts button')[p.a].className='text-left p-3 rounded-2xl border-[3px] border-ink bg-leaf text-white font-semibold text-sm'; }
+    $('#qFb').innerHTML = `<div class="p-3 rounded-2xl border-[3px] border-ink bg-white text-sm pop">
+      <p class="font-display font-extrabold">${i===p.a?'✅ ¡Correcto!':'📘 Revisemos juntos'}</p>
+      <p class="mt-1">${p.e}</p>
+      <button id="qNext" class="btn bg-teal text-white px-4 py-2 mt-3 text-sm">${qIdx===QUIZ.length-1?'Ver resultado 🏁':'Siguiente pregunta ➡️'}</button></div>`;
+    $('#qNext').addEventListener('click',()=>{ qIdx++; if(qIdx>=QUIZ.length) qDone=true; pintarQuiz(); });
+  }));
+}
+pintarQuiz();
+
+/* =========================================================
+   DIPLOMA
+   ========================================================= */
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function setFecha(){
+  const d = new Date();
+  $('#certFecha').textContent = `${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`;
+}
+setFecha();
+$('#btnDiploma').addEventListener('click',()=>{
+  const n = $('#nombreDiploma').value.trim();
+  if(n.length<4){ toast('Escribe tu nombre completo ✍️','bad'); return; }
+  $('#certNombre').textContent = n;
+  toast('🎓 ¡Diploma generado, '+n.split(' ')[0]+'!','ok');
+  $('#certCard').scrollIntoView({behavior:'smooth', block:'center'});
+});
+$('#btnPrint').addEventListener('click',()=>window.print());
+$('#btnLogros').addEventListener('click',()=>$('#logros').scrollIntoView({behavior:'smooth'}));
+
+/* =========================================================
+   GLOSARIO
+   ========================================================= */
+const GLOSARIO = [
+ ['Activo','Recurso controlado por la entidad del que se esperan beneficios económicos futuros.'],
+ ['Pasivo','Obligación presente de pagar dinero, entregar bienes o prestar servicios.'],
+ ['Patrimonio','Residual: lo que queda de los activos después de restar todos los pasivos.'],
+ ['Partida doble','Principio según el cual todo hecho económico afecta al menos dos cuentas por el mismo valor: no hay deudor sin acreedor.'],
+ ['Débito / Crédito','Lado izquierdo / lado derecho de una cuenta. No significan "bueno" o "malo": dependen de la naturaleza de la cuenta.'],
+ ['PUC','Plan Único de Cuentas: catálogo ordenado y codificado de las cuentas contables en Colombia (Decreto 2650 de 1993).'],
+ ['PCGA','Principios de Contabilidad Generalmente Aceptados: reglas comunes para que la información sea comparable y confiable.'],
+ ['Balance de comprobación','Listado de todas las cuentas con sus débitos y créditos para verificar que las sumas sean iguales.'],
+ ['Riqueza neta','Patrimonio de una persona: lo que tiene menos lo que debe.'],
+ ['Depreciación','Reparto del costo de un activo fijo entre los años de su vida útil (el desgaste).'],
+ ['Capitalizar','Registrar un desembolso como activo (se deprecia) en vez de llevarlo todo al gasto del periodo.'],
+ ['Liquidez','Facilidad y rapidez con la que algo se convierte en efectivo sin perder valor.'],
+ ['Razón corriente','Activo corriente ÷ Pasivo corriente. Mide la capacidad de pagar deudas de corto plazo.'],
+ ['Stakeholder','Persona o grupo afectado por la actividad de la empresa: empleados, clientes, proveedores, Estado, comunidad, inversionistas.'],
+ ['Evasión','Ocultar ingresos o inflar gastos para no pagar impuestos: es ilegal y daña a la sociedad.'],
+ ['Transparencia','Presentar la información de forma clara, completa y veraz, permitiendo que otros decidan con confianza.']
+];
+$('#glosarioBox').innerHTML = GLOSARIO.map(([t,d])=>`
+  <details class="card-soft p-4 bg-white">
+    <summary class="font-display font-extrabold text-lg flex justify-between items-center">${t}<span class="text-teal">＋</span></summary>
+    <p class="text-sm mt-2 text-ink/80">${d}</p>
+  </details>`).join('');
+
+pintarEstado();
+setTimeout(()=>toast('👋 ¡Hola! Soy Búho Conta. Toca, arrastra y equivócate sin miedo: así se aprende.','info'), 700);
+</script>
+</body>
+</html>
